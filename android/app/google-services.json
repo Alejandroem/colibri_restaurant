@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "45560064767",
+    "project_id": "colibri-173d3",
+    "storage_bucket": "colibri-173d3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:45560064767:android:b9f3aec48bd417518bfaca",
+        "android_client_info": {
+          "package_name": "com.colibri.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfPIGYqWdV-mfMdFsnxUlGrGjy5uHuosw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:45560064767:android:4de566a312de97f78bfaca",
+        "android_client_info": {
+          "package_name": "com.colibri.restaurant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfPIGYqWdV-mfMdFsnxUlGrGjy5uHuosw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
