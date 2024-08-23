@@ -26,6 +26,7 @@ mixin _$Order {
   String get restaurantName => throw _privateConstructorUsedError;
   String get restaurantId => throw _privateConstructorUsedError;
   String get customerId => throw _privateConstructorUsedError;
+  String? get driverId => throw _privateConstructorUsedError;
   List<Dish> get dishes => throw _privateConstructorUsedError;
   double get totalPrice => throw _privateConstructorUsedError;
   LocationPoint get restaurantLocation => throw _privateConstructorUsedError;
@@ -51,6 +52,7 @@ abstract class $OrderCopyWith<$Res> {
       String restaurantName,
       String restaurantId,
       String customerId,
+      String? driverId,
       List<Dish> dishes,
       double totalPrice,
       LocationPoint restaurantLocation,
@@ -82,6 +84,7 @@ class _$OrderCopyWithImpl<$Res, $Val extends Order>
     Object? restaurantName = null,
     Object? restaurantId = null,
     Object? customerId = null,
+    Object? driverId = freezed,
     Object? dishes = null,
     Object? totalPrice = null,
     Object? restaurantLocation = null,
@@ -114,6 +117,10 @@ class _$OrderCopyWithImpl<$Res, $Val extends Order>
           ? _value.customerId
           : customerId // ignore: cast_nullable_to_non_nullable
               as String,
+      driverId: freezed == driverId
+          ? _value.driverId
+          : driverId // ignore: cast_nullable_to_non_nullable
+              as String?,
       dishes: null == dishes
           ? _value.dishes
           : dishes // ignore: cast_nullable_to_non_nullable
@@ -184,6 +191,7 @@ abstract class _$$OrderImplCopyWith<$Res> implements $OrderCopyWith<$Res> {
       String restaurantName,
       String restaurantId,
       String customerId,
+      String? driverId,
       List<Dish> dishes,
       double totalPrice,
       LocationPoint restaurantLocation,
@@ -216,6 +224,7 @@ class __$$OrderImplCopyWithImpl<$Res>
     Object? restaurantName = null,
     Object? restaurantId = null,
     Object? customerId = null,
+    Object? driverId = freezed,
     Object? dishes = null,
     Object? totalPrice = null,
     Object? restaurantLocation = null,
@@ -248,6 +257,10 @@ class __$$OrderImplCopyWithImpl<$Res>
           ? _value.customerId
           : customerId // ignore: cast_nullable_to_non_nullable
               as String,
+      driverId: freezed == driverId
+          ? _value.driverId
+          : driverId // ignore: cast_nullable_to_non_nullable
+              as String?,
       dishes: null == dishes
           ? _value._dishes
           : dishes // ignore: cast_nullable_to_non_nullable
@@ -286,6 +299,7 @@ class _$OrderImpl implements _Order {
       required this.restaurantName,
       required this.restaurantId,
       required this.customerId,
+      required this.driverId,
       required final List<Dish> dishes,
       required this.totalPrice,
       required this.restaurantLocation,
@@ -310,6 +324,8 @@ class _$OrderImpl implements _Order {
   final String restaurantId;
   @override
   final String customerId;
+  @override
+  final String? driverId;
   final List<Dish> _dishes;
   @override
   List<Dish> get dishes {
@@ -336,7 +352,7 @@ class _$OrderImpl implements _Order {
 
   @override
   String toString() {
-    return 'Order(id: $id, status: $status, isActive: $isActive, restaurantName: $restaurantName, restaurantId: $restaurantId, customerId: $customerId, dishes: $dishes, totalPrice: $totalPrice, restaurantLocation: $restaurantLocation, driverLocation: $driverLocation, customerLocation: $customerLocation, statusHistory: $statusHistory)';
+    return 'Order(id: $id, status: $status, isActive: $isActive, restaurantName: $restaurantName, restaurantId: $restaurantId, customerId: $customerId, driverId: $driverId, dishes: $dishes, totalPrice: $totalPrice, restaurantLocation: $restaurantLocation, driverLocation: $driverLocation, customerLocation: $customerLocation, statusHistory: $statusHistory)';
   }
 
   @override
@@ -354,6 +370,8 @@ class _$OrderImpl implements _Order {
                 other.restaurantId == restaurantId) &&
             (identical(other.customerId, customerId) ||
                 other.customerId == customerId) &&
+            (identical(other.driverId, driverId) ||
+                other.driverId == driverId) &&
             const DeepCollectionEquality().equals(other._dishes, _dishes) &&
             (identical(other.totalPrice, totalPrice) ||
                 other.totalPrice == totalPrice) &&
@@ -377,6 +395,7 @@ class _$OrderImpl implements _Order {
       restaurantName,
       restaurantId,
       customerId,
+      driverId,
       const DeepCollectionEquality().hash(_dishes),
       totalPrice,
       restaurantLocation,
@@ -406,6 +425,7 @@ abstract class _Order implements Order {
       required final String restaurantName,
       required final String restaurantId,
       required final String customerId,
+      required final String? driverId,
       required final List<Dish> dishes,
       required final double totalPrice,
       required final LocationPoint restaurantLocation,
@@ -427,6 +447,8 @@ abstract class _Order implements Order {
   String get restaurantId;
   @override
   String get customerId;
+  @override
+  String? get driverId;
   @override
   List<Dish> get dishes;
   @override

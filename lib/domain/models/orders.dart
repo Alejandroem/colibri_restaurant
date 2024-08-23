@@ -6,10 +6,15 @@ import 'location_point.dart';
 part 'orders.freezed.dart';
 part 'orders.g.dart';
 
+
+//YOU ARE ADDING THE DRIVER PICKING UP!!
+
+
 enum OrderStatus {
   placed,
   preparing,
   pendingdriver,
+  driverpickingup,
   ontheway,
   delivered,
   cancelled,
@@ -24,6 +29,7 @@ class Order with _$Order {
     required String restaurantName,
     required String restaurantId,
     required String customerId,
+    required String? driverId,
     required List<Dish> dishes,
     required double totalPrice,
     required LocationPoint restaurantLocation,

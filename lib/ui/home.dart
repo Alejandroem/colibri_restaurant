@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/providers/order_providers.dart';
-import '../application/providers/restaurant_providers.dart';
 import '../application/providers/storage_providers.dart';
 import '../domain/models/orders.dart';
-import '../domain/services/orders_crud_service.dart';
 import 'pages/settings.dart';
 
 class Home extends ConsumerStatefulWidget {
@@ -37,15 +35,15 @@ class _HomeState extends ConsumerState<Home> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Restaurant Alpha"),
+        title: const Text("Restaurant Alpha"),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.of(context)
                   .push(
                 MaterialPageRoute(
-                  builder: (context) => SettingsPage(),
+                  builder: (context) => const SettingsPage(),
                 ),
               )
                   .then((value) {
@@ -101,7 +99,7 @@ class _HomeState extends ConsumerState<Home> {
                     }
 
                     if (snapshot.data == null || snapshot.data!.isEmpty) {
-                      return Center(
+                      return const Center(
                         child: Text("No data"),
                       );
                     }
@@ -178,7 +176,7 @@ class _HomeState extends ConsumerState<Home> {
                                                         order.id,
                                                       );
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   "Accept Order",
                                                   style: TextStyle(
                                                     color: Colors.white,
@@ -211,7 +209,7 @@ class _HomeState extends ConsumerState<Home> {
                                                         order.id,
                                                       );
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   "Ready for pickup",
                                                   style: TextStyle(
                                                     color: Colors.white,

@@ -13,6 +13,7 @@ _$OrderImpl _$$OrderImplFromJson(Map<String, dynamic> json) => _$OrderImpl(
       restaurantName: json['restaurantName'] as String,
       restaurantId: json['restaurantId'] as String,
       customerId: json['customerId'] as String,
+      driverId: json['driverId'] as String?,
       dishes: (json['dishes'] as List<dynamic>)
           .map((e) => Dish.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -39,6 +40,7 @@ Map<String, dynamic> _$$OrderImplToJson(_$OrderImpl instance) =>
       'restaurantName': instance.restaurantName,
       'restaurantId': instance.restaurantId,
       'customerId': instance.customerId,
+      'driverId': instance.driverId,
       'dishes': instance.dishes,
       'totalPrice': instance.totalPrice,
       'restaurantLocation': instance.restaurantLocation,
@@ -52,6 +54,7 @@ const _$OrderStatusEnumMap = {
   OrderStatus.placed: 'placed',
   OrderStatus.preparing: 'preparing',
   OrderStatus.pendingdriver: 'pendingdriver',
+  OrderStatus.driverpickingup: 'driverpickingup',
   OrderStatus.ontheway: 'ontheway',
   OrderStatus.delivered: 'delivered',
   OrderStatus.cancelled: 'cancelled',

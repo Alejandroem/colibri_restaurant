@@ -43,7 +43,6 @@ final currentOrderProvider = StreamProvider<List<Order>?>(
   },
 );
 
-
 final orderHistoryForUserProvider = StreamProvider<List<Order>?>(
   (ref) {
     return ref.watch(authenticatedUserIdStreamProvider).when(
@@ -78,6 +77,26 @@ final orderHistoryForUserProvider = StreamProvider<List<Order>?>(
       error: (err, stack) {
         return Stream.value(null);
       },
+    );
+  },
+);
+
+final currentDriverOrders = StreamProvider.family<List<Order>?, String>(
+  (ref, driverId) {
+    final ordersService = ref.watch(orderCrudSevice);
+    return ordersService.streamByFilters(
+      [
+        {
+          'field': 'isActive',
+          'operator': '==',
+          'value': true,
+        },
+        {
+          'field': 'driverId',
+          'operator': '==',
+          'value': driverId,
+        }
+      ],
     );
   },
 );

@@ -18,10 +18,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final localStorageService = ref.watch(localStorageServiceProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Restaurant Alpha"),
+        title: const Text("Restaurant Alpha"),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () {},
           ),
         ],
@@ -31,7 +31,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           future: restaurants.list(),
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
@@ -41,7 +41,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               );
             }
             if (snapshot.data == null || snapshot.data!.isEmpty) {
-              return Center(
+              return const Center(
                 child: Text("No data"),
               );
             }
@@ -56,7 +56,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           localStorageService.read("selected_restaurant_id"),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState != ConnectionState.done) {
-                          return Center(
+                          return const Center(
                             child: CircularProgressIndicator(),
                           );
                         }
@@ -67,7 +67,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         }
                         final selectedRestaurantId = snapshot.data;
                         return Container(
-                          padding: EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: selectedRestaurantId == restaurant.id
                                 ? Colors.blue[200]
@@ -92,7 +92,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               setState(() {});
                             },
                             trailing: selectedRestaurantId == restaurant.id
-                                ? Icon(Icons.check)
+                                ? const Icon(Icons.check)
                                 : null,
                           ),
                         );
