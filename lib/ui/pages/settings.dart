@@ -1,8 +1,8 @@
+import 'package:colibri_shared/application/providers/restaurant_providers.dart';
+import 'package:colibri_shared/application/providers/storage_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../application/providers/restaurant_providers.dart';
-import '../../application/providers/storage_providers.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});

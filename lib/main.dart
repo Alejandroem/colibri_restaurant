@@ -1,10 +1,10 @@
+import 'package:colibri_shared/domain/services/backend_service.dart';
+import 'package:colibri_shared/infrastructure/services/firebase_backend_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
-import 'domain/services/backend_service.dart';
-import 'infrastructure/services/firebase_backend_service.dart';
 import 'ui/home.dart';
 
 void main() async {

@@ -1,10 +1,12 @@
+import 'package:colibri_shared/application/providers/authentication_providers.dart';
+import 'package:colibri_shared/application/providers/order_providers.dart';
+import 'package:colibri_shared/application/providers/storage_providers.dart';
+import 'package:colibri_shared/domain/models/orders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../application/providers/order_providers.dart';
-import '../application/providers/storage_providers.dart';
-import '../domain/models/orders.dart';
 import 'pages/settings.dart';
+import 'pages/authentication_page.dart';
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -32,6 +34,12 @@ class _HomeState extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context) {
     final ordersService = ref.read(orderCrudSevice);
+
+    final isAuthenticated = ref.watch(isAuthenticatedStateNotifierProvider);
+
+    if (!isAuthenticated) {
+      return const AuthenticationPage();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -110,124 +118,123 @@ class _HomeState extends ConsumerState<Home> {
                     });
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Expanded(
-                        child: ListView(
-                          children: [
-                            for (var order in snapshot.data!)
-                              Column(
-                                children: [
-                                  Card(
-                                    child: Column(
-                                      children: [
-                                        ListTile(
-                                          title: Text(order.restaurantName),
-                                          subtitle: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
-                                            children: [
-                                              Text(order.status.toString()),
-                                              Text(
-                                                  "Total Price : ${order.dishes.fold(
-                                                0.0,
-                                                (previousValue, element) =>
-                                                    previousValue +
-                                                    element.price *
-                                                        (element.quantity ?? 0),
-                                              )}")
-                                            ],
-                                          ),
-                                          trailing: Column(
-                                            children: order.dishes
-                                                .map(
-                                                  (dish) => Text(
-                                                    '${dish.name} x ${dish.quantity}',
-                                                  ),
-                                                )
-                                                .toList(),
-                                          ),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          for (var order in snapshot.data!)
+                            Column(
+                              children: [
+                                Card(
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        title: Text(order.restaurantName),
+                                        subtitle: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
                                           children: [
-                                            if (order.status ==
-                                                OrderStatus.placed)
-                                              OutlinedButton(
-                                                style: OutlinedButton.styleFrom(
-                                                  backgroundColor: Colors.green,
-                                                ),
-                                                onPressed: () {
-                                                  var statusHistory = Map<
-                                                          OrderStatus,
-                                                          DateTime>.from(
-                                                      order.statusHistory);
-                                                  statusHistory[OrderStatus
-                                                          .preparing] =
-                                                      DateTime.now();
-                                                  ref
-                                                      .read(orderCrudSevice)
-                                                      .update(
-                                                        order.copyWith(
-                                                          status: OrderStatus
-                                                              .preparing,
-                                                          statusHistory:
-                                                              statusHistory,
-                                                        ),
-                                                        order.id,
-                                                      );
-                                                },
-                                                child: const Text(
-                                                  "Accept Order",
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            if (order.status ==
-                                                OrderStatus.preparing)
-                                              OutlinedButton(
-                                                style: OutlinedButton.styleFrom(
-                                                  backgroundColor: Colors.green,
-                                                ),
-                                                onPressed: () {
-                                                  var statusHistory = Map<
-                                                          OrderStatus,
-                                                          DateTime>.from(
-                                                      order.statusHistory);
-                                                  statusHistory[OrderStatus
-                                                          .pendingdriver] =
-                                                      DateTime.now();
-                                                  ref
-                                                      .read(orderCrudSevice)
-                                                      .update(
-                                                        order.copyWith(
-                                                          status: OrderStatus
-                                                              .pendingdriver,
-                                                          statusHistory:
-                                                              statusHistory,
-                                                        ),
-                                                        order.id,
-                                                      );
-                                                },
-                                                child: const Text(
-                                                  "Ready for pickup",
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
+                                            Text(order.status.toString()),
                                             Text(
-                                              "Order Placed ${getTimeAgo(order.statusHistory[OrderStatus.placed])} ago",
-                                            ),
+                                                "Total Price : ${order.dishes.fold(
+                                              0.0,
+                                              (previousValue, element) =>
+                                                  previousValue +
+                                                  element.price *
+                                                      (element.quantity ?? 0),
+                                            )}")
                                           ],
-                                        )
-                                      ],
-                                    ),
+                                        ),
+                                        trailing: Column(
+                                          children: order.dishes
+                                              .map(
+                                                (dish) => Text(
+                                                  '${dish.name} x ${dish.quantity}',
+                                                ),
+                                              )
+                                              .toList(),
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          if (order.status ==
+                                              OrderStatus.placed)
+                                            OutlinedButton(
+                                              style: OutlinedButton.styleFrom(
+                                                backgroundColor: Colors.green,
+                                              ),
+                                              onPressed: () {
+                                                var statusHistory = Map<
+                                                        OrderStatus,
+                                                        DateTime>.from(
+                                                    order.statusHistory);
+                                                statusHistory[
+                                                        OrderStatus.preparing] =
+                                                    DateTime.now();
+                                                ref
+                                                    .read(orderCrudSevice)
+                                                    .update(
+                                                      order.copyWith(
+                                                        status: OrderStatus
+                                                            .preparing,
+                                                        statusHistory:
+                                                            statusHistory,
+                                                      ),
+                                                      order.id,
+                                                    );
+                                              },
+                                              child: const Text(
+                                                "Accept Order",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          if (order.status ==
+                                              OrderStatus.preparing)
+                                            OutlinedButton(
+                                              style: OutlinedButton.styleFrom(
+                                                backgroundColor: Colors.green,
+                                              ),
+                                              onPressed: () {
+                                                var statusHistory = Map<
+                                                        OrderStatus,
+                                                        DateTime>.from(
+                                                    order.statusHistory);
+                                                statusHistory[OrderStatus
+                                                        .pendingdriver] =
+                                                    DateTime.now();
+                                                ref
+                                                    .read(orderCrudSevice)
+                                                    .update(
+                                                      order.copyWith(
+                                                        status: OrderStatus
+                                                            .pendingdriver,
+                                                        statusHistory:
+                                                            statusHistory,
+                                                      ),
+                                                      order.id,
+                                                    );
+                                              },
+                                              child: const Text(
+                                                "Ready for pickup",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          Text(
+                                            "Order Placed ${getTimeAgo(order.statusHistory[OrderStatus.placed])} ago",
+                                          ),
+                                        ],
+                                      )
+                                    ],
                                   ),
-                                ],
-                              ),
-                          ],
-                        ),
+                                ),
+                              ],
+                            ),
+                        ],
                       ),
                     );
                   },
