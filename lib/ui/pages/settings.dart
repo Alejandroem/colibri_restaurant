@@ -1,8 +1,8 @@
+import 'package:colibri_shared/application/providers/authentication_providers.dart';
 import 'package:colibri_shared/application/providers/restaurant_providers.dart';
 import 'package:colibri_shared/application/providers/storage_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -21,8 +21,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         title: const Text("Restaurant Alpha"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              final authenticationService =
+                  ref.read(authenticationServiceProvider);
+              authenticationService.signOut();
+              Navigator.of(context).pop();
+            },
           ),
         ],
       ),
@@ -80,9 +85,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           child: ListTile(
                             title: Text(restaurant.name),
                             onTap: () async {
-                              final selectedId = await localStorageService.read("selected_restaurant_id");
+                              final selectedId = await localStorageService
+                                  .read("selected_restaurant_id");
                               if (selectedId == restaurant.id) {
-                                await localStorageService.delete("selected_restaurant_id");
+                                await localStorageService
+                                    .delete("selected_restaurant_id");
                               } else {
                                 await localStorageService.save(
                                   "selected_restaurant_id",
