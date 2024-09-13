@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
-
 class AuthenticationPage extends ConsumerStatefulWidget {
   const AuthenticationPage({super.key});
 

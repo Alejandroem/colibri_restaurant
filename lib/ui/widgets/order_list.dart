@@ -55,6 +55,13 @@ class _OrderListState extends ConsumerState<OrderList> {
               child: ListView(
                 shrinkWrap: true,
                 children: [
+                  Text(
+                    "Orders",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   for (var order in snapshot.data!)
                     Column(
                       children: [

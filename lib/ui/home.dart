@@ -4,9 +4,13 @@ import 'package:colibri_shared/application/providers/restaurant_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'pages/manage_dish_page.dart';
 import 'pages/onboarding.dart';
 import 'pages/authentication_page.dart';
+import 'widgets/colibri_drawer.dart';
+import 'widgets/dish_list.dart';
 import 'widgets/order_list.dart';
+import 'widgets/restaurant_app_bar.dart';
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -36,85 +40,33 @@ class _HomeState extends ConsumerState<Home> {
         if (restaurantProfile == null) {
           return const OnboardingRestaurant();
         }
-
         return Scaffold(
-          key: _scaffoldKey, // Assign the key to the Scaffold
-
-          drawer: Drawer(
-            child: ListView(
-              children: [
-                DrawerHeader(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(restaurantProfile.coverImage),
-                      fit: BoxFit.cover,
-                      opacity: 0.5,
-                    ),
-                  ),
-                  child: Text(
-                    restaurantProfile.name,
-                  ),
-                ),
-                ListTile(
-                  title: const Text("Orders"),
-                  onTap: () {
-                    ref.watch(currentDrawerIndexProvider.notifier).state = 0;
-                    Navigator.pop(context);
+          key: _scaffoldKey,
+          drawer: ColibriDrawer(restaurantProfile),
+          appBar: RestaurantAppBar(_scaffoldKey, restaurantProfile),
+          floatingActionButton: ref.watch(currentDrawerIndexProvider) == 1
+              ? FloatingActionButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(
+                      MaterialPageRoute(
+                        builder: (context) => ManageDishPage(
+                          restaurantProfile,
+                        ),
+                      ),
+                    )
+                        .then((value) {
+                      setState(() {});
+                    });
                   },
-                ),
-                ListTile(
-                  title: const Text("Dishes"),
-                  onTap: () {
-                    ref.watch(currentDrawerIndexProvider.notifier).state = 1;
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: const Text("Profile"),
-                  onTap: () {
-                    ref.watch(currentDrawerIndexProvider.notifier).state = 2;
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                _scaffoldKey.currentState?.openDrawer();
-              },
-            ),
-            title: Row(
-              children: [
-                Text(restaurantProfile.name),
-                const Spacer(),
-                restaurantProfile.isOpen == true
-                    ? const Text("Open")
-                    : const Text("Closed"),
-                const SizedBox(width: 8),
-                Switch(
-                  value: restaurantProfile.isOpen ?? false,
-                  onChanged: (value) async {
-                    final restaurantService =
-                        ref.read(restaurantServiceProvider);
-                    await restaurantService.update(
-                      restaurantProfile.copyWith(isOpen: value),
-                      restaurantProfile.id!,
-                    );
-                    ref.invalidate(
-                        restaurantProfileProvider); // Invalidate to trigger a rebuild
-                  },
-                ),
-              ],
-            ),
-          ),
+                  child: const Icon(Icons.add),
+                )
+              : null,
           body: IndexedStack(
             index: ref.watch(currentDrawerIndexProvider),
             children: [
               OrderList(restaurantProfile.id!),
-              const Text("Dishes"),
+              DishList(restaurantProfile),
               const Text("Profile"),
             ],
           ),
