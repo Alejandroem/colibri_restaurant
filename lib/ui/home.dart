@@ -11,6 +11,7 @@ import 'widgets/colibri_drawer.dart';
 import 'widgets/dish_list.dart';
 import 'widgets/order_list.dart';
 import 'widgets/restaurant_app_bar.dart';
+import 'widgets/restaurant_profile.dart';
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -67,7 +68,7 @@ class _HomeState extends ConsumerState<Home> {
             children: [
               OrderList(restaurantProfile.id!),
               DishList(restaurantProfile),
-              const Text("Profile"),
+              RestaurantProfile(restaurantProfile),
             ],
           ),
         );
