@@ -1,8 +1,18 @@
+import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:colibri_shared/application/providers/authentication_providers.dart';
 import 'package:colibri_shared/application/providers/location_providers.dart';
+import 'package:colibri_shared/application/providers/profile_providers.dart';
+import 'package:colibri_shared/application/providers/restaurant_providers.dart';
+import 'package:colibri_shared/application/providers/storage_providers.dart';
 import 'package:colibri_shared/constants.dart';
+import 'package:colibri_shared/domain/models/location_point.dart';
+import 'package:colibri_shared/domain/models/restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:file_picker/file_picker.dart'; // Import file picker
 
 class OnboardingRestaurant extends ConsumerStatefulWidget {
   const OnboardingRestaurant({super.key});
@@ -13,9 +23,10 @@ class OnboardingRestaurant extends ConsumerStatefulWidget {
 }
 
 class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
-  bool showBackButton = false;
   late GoogleMapController mapController;
   PageController pageController = PageController();
+  int _currentPageIndex = 0;
+  bool saving = false;
 
   // Local state for multi-selection of food categories
   Set<String> selectedCategories = {};
@@ -25,13 +36,53 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
 
   final Set<Marker> _markers = {};
 
+  // Local state for the cover photo bytes and file name
+  Uint8List? _coverPhotoBytes;
+  String? _coverPhotoFileName;
+  final TextEditingController _nameController = TextEditingController();
+
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
+  // Method to pick a cover photo
+  Future<void> _pickCoverPhoto() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+      withData: true, // Try to load bytes in memory
+    );
+
+    if (result != null) {
+      // If bytes are not available, load them from the file's path
+      if (result.files.first.bytes != null) {
+        setState(() {
+          _coverPhotoBytes = result.files.first.bytes;
+          _coverPhotoFileName = result.files.first.name;
+        });
+      } else if (result.files.first.path != null) {
+        // Load bytes manually from the file path
+        final file = File(result.files.first.path!);
+        setState(() {
+          _coverPhotoBytes = file.readAsBytesSync();
+          _coverPhotoFileName = result.files.first.name;
+        });
+      }
+    }
+  }
+
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
+
+  bool _canSaveRestaurant() {
+    return _nameController.text.isNotEmpty &&
+        selectedCategories.isNotEmpty &&
+        selectedPrice != null &&
+        _coverPhotoBytes != null &&
+        _markers.isNotEmpty; // Ensure a location is selected
   }
 
   @override
@@ -74,6 +125,11 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                 Expanded(
                   child: PageView(
                     controller: pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentPageIndex = index; // Track current page index
+                      });
+                    },
                     children: [
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -89,6 +145,7 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                           ),
                           const SizedBox(height: 20),
                           TextFormField(
+                            controller: _nameController,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -154,20 +211,16 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          // Display the list of chips in a Wrap to handle multiple rows
                           Wrap(
                             spacing: 4.0, // Space between the chips
                             children: restaurantCategories
                                 .where((category) => category != "All")
-                                .toList()
                                 .map((category) {
                               final isSelected =
                                   selectedCategories.contains(category);
-
                               return InkWell(
                                 onTap: () {
                                   setState(() {
-                                    // Toggle the selected category in the Set
                                     if (isSelected) {
                                       selectedCategories.remove(category);
                                     } else {
@@ -187,7 +240,6 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                       : Theme.of(context)
                                           .chipTheme
                                           .backgroundColor,
-                                  padding: const EdgeInsets.all(0),
                                   label: Text(
                                     category,
                                     style: const TextStyle(
@@ -199,7 +251,7 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                               );
                             }).toList(),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           const Text(
                             "Average Price",
                             style: TextStyle(
@@ -208,9 +260,8 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          // Display the list of average prices in a Wrap to handle single selection
                           Wrap(
-                            spacing: 4.0, // Space between the chips
+                            spacing: 2.0, // Space between the chips
                             children: [
                               30.00,
                               50.00,
@@ -218,11 +269,9 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                               100.00,
                             ].map((price) {
                               final isSelected = selectedPrice == price;
-
                               return InkWell(
                                 onTap: () {
                                   setState(() {
-                                    // Set the selected price for single selection
                                     selectedPrice = price;
                                   });
                                 },
@@ -238,7 +287,6 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                       : Theme.of(context)
                                           .chipTheme
                                           .backgroundColor,
-                                  padding: const EdgeInsets.all(0),
                                   label: Text(
                                     "Q${price.toStringAsFixed(2)}",
                                     style: const TextStyle(
@@ -252,20 +300,65 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                           ),
                         ],
                       ),
+                      Column(
+                        children: [
+                          const Text(
+                            "Pick a cover photo",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          if (_coverPhotoFileName != null &&
+                              _coverPhotoBytes != null)
+                            Container(
+                              clipBehavior: Clip.hardEdge,
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(
+                                    13,
+                                  ),
+                                ),
+                              ),
+                              child: Image.memory(
+                                _coverPhotoBytes!,
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          if (_coverPhotoFileName == null &&
+                              _coverPhotoBytes == null)
+                            const SizedBox(
+                              height: 150,
+                              child: Center(
+                                child: Text(
+                                  "No cover photo selected",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: _pickCoverPhoto,
+                            child: const Text("Select Cover Photo"),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
                 Row(
                   children: [
-                    if (showBackButton)
+                    if (_currentPageIndex >
+                        0) // Show back button on pages 1 and 2
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            setState(() {
-                              if (pageController.page == 1) {
-                                showBackButton = false;
-                              }
-                            });
                             pageController.previousPage(
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
@@ -276,18 +369,118 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                       ),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            if (pageController.page == 0) {
-                              showBackButton = true;
-                            }
-                          });
-                          pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        },
-                        child: const Text('Continue'),
+                        onPressed:
+                            saving // Disable the button when saving is in progress
+                                ? null
+                                : () async {
+                                    if (_currentPageIndex == 2 &&
+                                        !_canSaveRestaurant()) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Please fill in all the fields',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      return;
+                                    }
+
+                                    if (_currentPageIndex == 2) {
+                                      setState(() {
+                                        saving = true;
+                                      });
+                                      // Save action on the last page
+                                      // Add save logic here
+                                      final storageService =
+                                          ref.read(storageServiceProvider);
+                                      final restaurantService =
+                                          ref.read(restaurantServiceProvider);
+                                      final authenticationService = ref.read(
+                                        authenticationServiceProvider,
+                                      );
+                                      final profileService =
+                                          ref.read(profileServiceProvider);
+
+                                      final authenticatedId =
+                                          await authenticationService
+                                              .getAuthenticatedUserId();
+                                      final profile =
+                                          await profileService.readBy(
+                                        'userId',
+                                        authenticatedId!,
+                                      );
+
+                                      Restaurant restaurant = Restaurant(
+                                        id: null,
+                                        coverImage: '',
+                                        name: _nameController.text,
+                                        typeOfFood: selectedCategories.toList(),
+                                        averagePrice: selectedPrice ?? 0.0,
+                                        location: LocationPoint(
+                                          latitude:
+                                              _markers.first.position.latitude,
+                                          longitude:
+                                              _markers.first.position.longitude,
+                                        ),
+                                        phoneNumber: profile.isNotEmpty
+                                            ? profile.first.phoneNumber
+                                            : '',
+                                        ownerId: authenticatedId,
+                                        isOpen: false,
+                                      );
+
+                                      restaurant =
+                                          await restaurantService.create(
+                                        restaurant,
+                                      );
+
+                                      final coverImage =
+                                          _coverPhotoBytes != null
+                                              ? await storageService.uploadFile(
+                                                  'restaurants/${restaurant.id!}',
+                                                  _coverPhotoFileName!,
+                                                  _coverPhotoFileName!
+                                                      .split('.')
+                                                      .last,
+                                                  _coverPhotoBytes!,
+                                                )
+                                              : '';
+
+                                      await restaurantService.update(
+                                        restaurant.copyWith(
+                                          coverImage: coverImage,
+                                        ),
+                                        restaurant.id!,
+                                      );
+
+                                      final refresh = ref.refresh(
+                                        restaurantProfileProvider,
+                                      );
+                                      log('Refreshed restaurant profile: $refresh');
+                                    } else {
+                                      pageController.nextPage(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    }
+                                  },
+                        child: saving
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                _currentPageIndex == 2 ? 'Save' : 'Continue',
+                              ),
                       ),
                     ),
                   ],
