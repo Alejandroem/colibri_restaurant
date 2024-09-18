@@ -26,6 +26,44 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:45560064767:android:78ac3ea59b18b71d8bfaca",
+        "android_client_info": {
+          "package_name": "com.colibri.delivers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfPIGYqWdV-mfMdFsnxUlGrGjy5uHuosw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:45560064767:android:15e6390f2408fb0e8bfaca",
+        "android_client_info": {
+          "package_name": "com.colibri.driver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfPIGYqWdV-mfMdFsnxUlGrGjy5uHuosw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:45560064767:android:4de566a312de97f78bfaca",
         "android_client_info": {
           "package_name": "com.colibri.restaurant"

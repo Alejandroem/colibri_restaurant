@@ -12,10 +12,11 @@ import 'package:colibri_shared/domain/models/restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:file_picker/file_picker.dart'; // Import file picker
+import 'package:file_picker/file_picker.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class OnboardingRestaurant extends ConsumerStatefulWidget {
-  const OnboardingRestaurant({super.key});
+  const OnboardingRestaurant({Key? key}) : super(key: key);
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -27,6 +28,7 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
   PageController pageController = PageController();
   int _currentPageIndex = 0;
   bool saving = false;
+  PhoneNumber number = PhoneNumber(isoCode: 'GT');
 
   // Local state for multi-selection of food categories
   Set<String> selectedCategories = {};
@@ -39,10 +41,24 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
   // Local state for the cover photo bytes and file name
   Uint8List? _coverPhotoBytes;
   String? _coverPhotoFileName;
+
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+
+    // Get current location and update the camera position
+    ref.read(locationServiceProvider).getCurrentLocation().then((latLng) {
+      mapController.animateCamera(
+        CameraUpdate.newLatLng(
+          LatLng(
+            latLng.latitude,
+            latLng.longitude,
+          ),
+        ),
+      );
+    });
   }
 
   // Method to pick a cover photo
@@ -50,18 +66,16 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: false,
-      withData: true, // Try to load bytes in memory
+      withData: true,
     );
 
     if (result != null) {
-      // If bytes are not available, load them from the file's path
       if (result.files.first.bytes != null) {
         setState(() {
           _coverPhotoBytes = result.files.first.bytes;
           _coverPhotoFileName = result.files.first.name;
         });
       } else if (result.files.first.path != null) {
-        // Load bytes manually from the file path
         final file = File(result.files.first.path!);
         setState(() {
           _coverPhotoBytes = file.readAsBytesSync();
@@ -74,38 +88,33 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
   @override
   void dispose() {
     pageController.dispose();
+    _nameController.dispose();
+    _phoneNumberController.dispose();
     super.dispose();
+  }
+
+  bool _isValidPhoneNumber(String phoneNumber) {
+    return phoneNumber.isNotEmpty;
   }
 
   bool _canSaveRestaurant() {
     return _nameController.text.isNotEmpty &&
+        _phoneNumberController.text.isNotEmpty &&
+        _isValidPhoneNumber(_phoneNumberController.text) &&
         selectedCategories.isNotEmpty &&
         selectedPrice != null &&
         _coverPhotoBytes != null &&
-        _markers.isNotEmpty; // Ensure a location is selected
+        _markers.isNotEmpty;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get current location and update the camera position
-    ref.watch(locationServiceProvider).getCurrentLocation().then((latLng) {
-      mapController.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(
-            latLng.latitude,
-            latLng.longitude,
-          ),
-        ),
-      );
-    });
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 const Text(
@@ -125,16 +134,18 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                 Expanded(
                   child: PageView(
                     controller: pageController,
+                    physics: const NeverScrollableScrollPhysics(),
                     onPageChanged: (index) {
                       setState(() {
-                        _currentPageIndex = index; // Track current page index
+                        _currentPageIndex = index;
                       });
                     },
                     children: [
+                      // First Page
                       Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          const SizedBox(height: 20),
                           const Text(
                             "Tell us about your restaurant",
                             style: TextStyle(
@@ -144,6 +155,7 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 20),
+                          // Restaurant Name Input
                           TextFormField(
                             controller: _nameController,
                             decoration: InputDecoration(
@@ -153,7 +165,30 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                   color: Theme.of(context).hintColor,
                                 ),
                               ),
-                              hintText: 'How do you want to be called?',
+                              hintText: 'Restaurant Name',
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Phone Number Input
+                          InternationalPhoneNumberInput(
+                            initialValue: number,
+                            onInputChanged: (PhoneNumber number) {},
+                            onInputValidated: (bool value) {},
+                            selectorConfig: const SelectorConfig(
+                              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                            ),
+                            ignoreBlank: false,
+                            autoValidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            textFieldController: _phoneNumberController,
+                            formatInput: true,
+                            keyboardType: const TextInputType.numberWithOptions(
+                                signed: true, decimal: true),
+                            inputDecoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              hintText: 'Phone Number',
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -186,7 +221,6 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                     ),
                                     icon: BitmapDescriptor.defaultMarker,
                                   ));
-
                                   setState(() {});
                                 },
                                 markers: _markers,
@@ -201,18 +235,22 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                           const SizedBox(height: 20),
                         ],
                       ),
+                      // Second Page
                       Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          const SizedBox(height: 20),
                           const Text(
                             "Type of food",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 10),
                           Wrap(
-                            spacing: 4.0, // Space between the chips
+                            spacing: 4.0,
                             children: restaurantCategories
                                 .where((category) => category != "All")
                                 .map((category) {
@@ -258,10 +296,11 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 10),
                           Wrap(
-                            spacing: 2.0, // Space between the chips
+                            spacing: 2.0,
                             children: [
                               30.00,
                               50.00,
@@ -300,14 +339,18 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                           ),
                         ],
                       ),
+                      // Third Page
                       Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          const SizedBox(height: 20),
                           const Text(
                             "Pick a cover photo",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 10),
                           if (_coverPhotoFileName != null &&
@@ -316,9 +359,7 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                               clipBehavior: Clip.hardEdge,
                               decoration: const BoxDecoration(
                                 borderRadius: BorderRadius.all(
-                                  Radius.circular(
-                                    13,
-                                  ),
+                                  Radius.circular(13),
                                 ),
                               ),
                               child: Image.memory(
@@ -352,10 +393,10 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 20),
                 Row(
                   children: [
-                    if (_currentPageIndex >
-                        0) // Show back button on pages 1 and 2
+                    if (_currentPageIndex > 0)
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
@@ -367,107 +408,100 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                           child: const Text('Back'),
                         ),
                       ),
+                    if (_currentPageIndex > 0) const SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed:
-                            saving // Disable the button when saving is in progress
-                                ? null
-                                : () async {
-                                    if (_currentPageIndex == 2 &&
-                                        !_canSaveRestaurant()) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Please fill in all the fields',
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                      return;
-                                    }
-
-                                    if (_currentPageIndex == 2) {
-                                      setState(() {
-                                        saving = true;
-                                      });
-                                      // Save action on the last page
-                                      // Add save logic here
-                                      final storageService =
-                                          ref.read(storageServiceProvider);
-                                      final restaurantService =
-                                          ref.read(restaurantServiceProvider);
-                                      final authenticationService = ref.read(
-                                        authenticationServiceProvider,
-                                      );
-                                      final profileService =
-                                          ref.read(profileServiceProvider);
-
-                                      final authenticatedId =
-                                          await authenticationService
-                                              .getAuthenticatedUserId();
-                                      final profile =
-                                          await profileService.readBy(
-                                        'userId',
-                                        authenticatedId!,
-                                      );
-
-                                      Restaurant restaurant = Restaurant(
-                                        id: null,
-                                        coverImage: '',
-                                        name: _nameController.text,
-                                        typeOfFood: selectedCategories.toList(),
-                                        averagePrice: selectedPrice ?? 0.0,
-                                        location: LocationPoint(
-                                          latitude:
-                                              _markers.first.position.latitude,
-                                          longitude:
-                                              _markers.first.position.longitude,
+                        onPressed: saving
+                            ? null
+                            : () async {
+                                if (_currentPageIndex == 2 &&
+                                    !_canSaveRestaurant()) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Please fill in all the fields',
                                         ),
-                                        phoneNumber: profile.isNotEmpty
-                                            ? profile.first.phoneNumber
-                                            : '',
-                                        ownerId: authenticatedId,
-                                        isOpen: false,
-                                      );
+                                      ),
+                                    );
+                                  }
+                                  return;
+                                }
 
-                                      restaurant =
-                                          await restaurantService.create(
-                                        restaurant,
-                                      );
+                                if (_currentPageIndex == 2) {
+                                  setState(() {
+                                    saving = true;
+                                  });
+                                  // Save action on the last page
+                                  // Add save logic here
+                                  final storageService =
+                                      ref.read(storageServiceProvider);
+                                  final restaurantService =
+                                      ref.read(restaurantServiceProvider);
+                                  final authenticationService = ref.read(
+                                    authenticationServiceProvider,
+                                  );
+                                  final profileService =
+                                      ref.read(profileServiceProvider);
 
-                                      final coverImage =
-                                          _coverPhotoBytes != null
-                                              ? await storageService.uploadFile(
-                                                  'restaurants/${restaurant.id!}',
-                                                  _coverPhotoFileName!,
-                                                  _coverPhotoFileName!
-                                                      .split('.')
-                                                      .last,
-                                                  _coverPhotoBytes!,
-                                                )
-                                              : '';
+                                  final authenticatedId =
+                                      await authenticationService
+                                          .getAuthenticatedUserId();
+                                  final profile = await profileService.readBy(
+                                    'userId',
+                                    authenticatedId!,
+                                  );
 
-                                      await restaurantService.update(
-                                        restaurant.copyWith(
-                                          coverImage: coverImage,
-                                        ),
-                                        restaurant.id!,
-                                      );
+                                  Restaurant restaurant = Restaurant(
+                                    id: null,
+                                    coverImage: '',
+                                    name: _nameController.text,
+                                    typeOfFood: selectedCategories.toList(),
+                                    averagePrice: selectedPrice ?? 0.0,
+                                    location: LocationPoint(
+                                      latitude:
+                                          _markers.first.position.latitude,
+                                      longitude:
+                                          _markers.first.position.longitude,
+                                    ),
+                                    phoneNumber: profile.isNotEmpty
+                                        ? profile.first.phoneNumber
+                                        : '',
+                                    ownerId: authenticatedId,
+                                    isOpen: false,
+                                  );
 
-                                      final refresh = ref.refresh(
-                                        restaurantProfileProvider,
-                                      );
-                                      log('Refreshed restaurant profile: $refresh');
-                                    } else {
-                                      pageController.nextPage(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    }
-                                  },
+                                  restaurant = await restaurantService.create(
+                                    restaurant,
+                                  );
+
+                                  final coverImage = _coverPhotoBytes != null
+                                      ? await storageService.uploadFile(
+                                          'restaurants/${restaurant.id!}',
+                                          _coverPhotoFileName!,
+                                          _coverPhotoFileName!.split('.').last,
+                                          _coverPhotoBytes!,
+                                        )
+                                      : '';
+
+                                  await restaurantService.update(
+                                    restaurant.copyWith(
+                                      coverImage: coverImage,
+                                    ),
+                                    restaurant.id!,
+                                  );
+
+                                  final refresh = ref.refresh(
+                                    restaurantProfileProvider,
+                                  );
+                                  log('Refreshed restaurant profile: $refresh');
+                                } else {
+                                  pageController.nextPage(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
+                              },
                         child: saving
                             ? const SizedBox(
                                 height: 20,

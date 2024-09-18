@@ -1,3 +1,4 @@
+import 'package:colibri_shared/application/providers/authentication_providers.dart';
 import 'package:colibri_shared/application/providers/navigation_providers.dart';
 import 'package:colibri_shared/domain/models/restaurant.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,15 @@ class ColibriDrawer extends ConsumerWidget {
             onTap: () {
               ref.watch(currentDrawerIndexProvider.notifier).state = 2;
               Navigator.pop(context);
+            },
+          ),
+          const Divider(),
+          const SizedBox(height: 100),
+          ListTile(
+            title: const Text("Logout"),
+            onTap: () {
+              final authProvider = ref.read(authenticationServiceProvider);
+              authProvider.signOut();
             },
           ),
         ],

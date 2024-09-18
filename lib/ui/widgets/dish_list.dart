@@ -75,7 +75,7 @@ class _DishListState extends ConsumerState<DishList> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   "Dishes",
@@ -85,7 +85,7 @@ class _DishListState extends ConsumerState<DishList> {
                   ),
                 ),
               ),
-              Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
                   "Dishes you offer",

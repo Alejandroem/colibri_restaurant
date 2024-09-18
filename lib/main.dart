@@ -11,6 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   BackendService backendService = FirebaseBackendService();
   await backendService.initializeBackendServices();
+  
 
   Stripe.publishableKey =
       'pk_test_51PoCrn05ZmOEFOYpsrKFgDgpYbMyz2WWl4L3cER5j97ivPXRYk8f4UxQan9XSvt8txam1fi6GYcJDWOYlfCiZIid00PIPoA2eR';

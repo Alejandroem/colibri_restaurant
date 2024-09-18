@@ -34,13 +34,13 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
   final ImagePicker _picker = ImagePicker();
 
   // List to store selected image files (locally picked images)
-  List<File> _newImages = [];
+  final List<File> _newImages = [];
 
   // List to store existing image URLs (for editing)
   List<String> _existingImageUrls = [];
 
   // List to track images marked for deletion
-  List<String> _imagesToDelete = [];
+  final List<String> _imagesToDelete = [];
 
   @override
   void initState() {
