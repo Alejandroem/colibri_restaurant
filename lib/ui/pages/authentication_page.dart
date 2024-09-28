@@ -159,6 +159,7 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                                   .registerWithEmailAndPassword(
                                 email,
                                 password,
+                                null,
                               );
                             }
                             // Navigate to the next screen or handle successful authentication
