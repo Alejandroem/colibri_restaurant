@@ -3,6 +3,7 @@ import 'package:colibri_shared/application/providers/navigation_providers.dart';
 import 'package:colibri_shared/domain/models/restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 class ColibriDrawer extends ConsumerWidget {
   final Restaurant restaurantProfile;
@@ -26,21 +27,21 @@ class ColibriDrawer extends ConsumerWidget {
             ),
           ),
           ListTile(
-            title: const Text("Orders"),
+            title: Text(FlutterI18n.translate(context, "drawer.orders")),
             onTap: () {
               ref.watch(currentDrawerIndexProvider.notifier).state = 0;
               Navigator.pop(context);
             },
           ),
           ListTile(
-            title: const Text("Dishes"),
+            title: Text(FlutterI18n.translate(context, "drawer.dishes")),
             onTap: () {
               ref.watch(currentDrawerIndexProvider.notifier).state = 1;
               Navigator.pop(context);
             },
           ),
           ListTile(
-            title: const Text("Profile"),
+            title: Text(FlutterI18n.translate(context, "drawer.profile")),
             onTap: () {
               ref.watch(currentDrawerIndexProvider.notifier).state = 2;
               Navigator.pop(context);
@@ -49,7 +50,7 @@ class ColibriDrawer extends ConsumerWidget {
           const Divider(),
           const SizedBox(height: 100),
           ListTile(
-            title: const Text("Logout"),
+            title: Text(FlutterI18n.translate(context, "drawer.logout")),
             onTap: () {
               final authProvider = ref.read(authenticationServiceProvider);
               authProvider.signOut();

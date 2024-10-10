@@ -3,6 +3,7 @@ import 'package:colibri_shared/application/providers/restaurant_providers.dart';
 import 'package:colibri_shared/application/providers/storage_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -18,7 +19,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final localStorageService = ref.watch(localStorageServiceProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Restaurant Alpha"),
+        title: Text(
+            FlutterI18n.translate(context, "settings_page.restaurant_alpha")),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -36,18 +38,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           future: restaurants.list(),
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(
+              return Center(
                 child: CircularProgressIndicator(),
               );
             }
             if (snapshot.hasError) {
               return Center(
-                child: Text("Error: ${snapshot.error}"),
+                child: Text(
+                    "${FlutterI18n.translate(context, 'settings_page.error')}: ${snapshot.error}"),
               );
             }
             if (snapshot.data == null || snapshot.data!.isEmpty) {
-              return const Center(
-                child: Text("No data"),
+              return Center(
+                child: Text(
+                    FlutterI18n.translate(context, 'settings_page.no_data')),
               );
             }
             final restaurants = snapshot.data;
@@ -61,13 +65,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           localStorageService.read("selected_restaurant_id"),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState != ConnectionState.done) {
-                          return const Center(
+                          return Center(
                             child: CircularProgressIndicator(),
                           );
                         }
                         if (snapshot.hasError) {
                           return Center(
-                            child: Text("Error: ${snapshot.error}"),
+                            child: Text(
+                                "${FlutterI18n.translate(context, 'settings_page.error')}: ${snapshot.error}"),
                           );
                         }
                         final selectedRestaurantId = snapshot.data;
@@ -92,9 +97,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     .delete("selected_restaurant_id");
                               } else {
                                 await localStorageService.save(
-                                  "selected_restaurant_id",
-                                  restaurant.id!,
-                                );
+                                    "selected_restaurant_id", restaurant.id!);
                               }
                               setState(() {});
                             },

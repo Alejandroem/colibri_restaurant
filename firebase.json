@@ -1,1 +1,34 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"colibri-173d3","appId":"1:45560064767:android:4de566a312de97f78bfaca","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"colibri-173d3","configurations":{"android":"1:45560064767:android:4de566a312de97f78bfaca","ios":"1:45560064767:ios:d91c5c44d83a46cc8bfaca"}}}}}}
+{
+    "hosting": [
+        {
+            "public": "build/web",
+            "site": "restaurant-colibridelivers",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ]
+        }
+    ],
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "colibri-173d3",
+                    "appId": "1:45560064767:android:4de566a312de97f78bfaca",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "colibri-173d3",
+                    "configurations": {
+                        "android": "1:45560064767:android:4de566a312de97f78bfaca",
+                        "ios": "1:45560064767:ios:d91c5c44d83a46cc8bfaca",
+                        "web": "1:45560064767:web:2bad62a0d632e1178bfaca"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -3,6 +3,7 @@ import 'package:colibri_shared/application/providers/restaurant_providers.dart';
 import 'package:colibri_shared/domain/models/restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../pages/manage_dish_page.dart';
 
@@ -15,15 +16,12 @@ class DishList extends ConsumerStatefulWidget {
 }
 
 class _DishListState extends ConsumerState<DishList> {
-  // Method to toggle dish availability
   Future<void> _toggleAvailability(dishService, dish) async {
     final updatedDish = dish.copyWith(
-      isAvailable: !(dish.isAvailable ?? false), // Default to false if null
+      isAvailable: !(dish.isAvailable ?? false),
     );
-    // Update the dish in the backend
     await dishService.update(updatedDish, dish.id);
 
-    // Optimistically update the UI
     if (mounted) setState(() {});
   }
 
@@ -35,7 +33,7 @@ class _DishListState extends ConsumerState<DishList> {
         future: dishService.readBy("restaurantId", widget.restaurant.id!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Column(
+            return Column(
               children: [
                 SizedBox(
                   height: 100,
@@ -48,13 +46,14 @@ class _DishListState extends ConsumerState<DishList> {
           }
 
           if (snapshot.hasError) {
-            return const Center(
-              child: Text('An error occurred'),
+            return Center(
+              child: Text(
+                  FlutterI18n.translate(context, 'dish_list.error_occurred')),
             );
           }
           final dishes = snapshot.data;
           if (dishes == null || dishes.isEmpty) {
-            return const Column(
+            return Column(
               children: [
                 SizedBox(
                   height: 100,
@@ -62,7 +61,7 @@ class _DishListState extends ConsumerState<DishList> {
                 Icon(Icons.dining, size: 100, color: Colors.grey),
                 Center(
                   child: Text(
-                    'No dishes found',
+                    FlutterI18n.translate(context, 'dish_list.no_dishes_found'),
                     style: TextStyle(
                       fontSize: 20,
                       color: Colors.grey,
@@ -75,27 +74,27 @@ class _DishListState extends ConsumerState<DishList> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
-                  "Dishes",
+                  FlutterI18n.translate(context, 'dish_list.dishes'),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
-                  "Dishes you offer",
+                  FlutterI18n.translate(context, 'dish_list.dishes_you_offer'),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(
+              SizedBox(
                 height: 10,
               ),
               ListView.builder(
@@ -116,8 +115,7 @@ class _DishListState extends ConsumerState<DishList> {
                         ),
                       )
                           .then((value) {
-                        setState(
-                            () {}); // Refresh the list after managing a dish
+                        setState(() {});
                       });
                     },
                     child: Padding(
@@ -130,14 +128,13 @@ class _DishListState extends ConsumerState<DishList> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Dish ${dish.name}',
-                                style: const TextStyle(
+                                "${FlutterI18n.translate(context, 'dish_list.dish')} ${dish.name}",
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const Spacer(),
-                              // Toggle switch for isAvailable, defaulting to false if null
                               Switch(
                                 value: dish.isAvailable ?? false,
                                 onChanged: (value) {
@@ -152,8 +149,7 @@ class _DishListState extends ConsumerState<DishList> {
                                 flex: 4,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                  ),
+                                      horizontal: 10),
                                   child: CarouselSlider(
                                     options: CarouselOptions(
                                       enlargeStrategy:
@@ -172,14 +168,12 @@ class _DishListState extends ConsumerState<DishList> {
                                     items: dish.images.map((image) {
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 4,
-                                        ),
+                                            horizontal: 4),
                                         child: Container(
                                           clipBehavior: Clip.hardEdge,
                                           decoration: const BoxDecoration(
                                             borderRadius: BorderRadius.all(
-                                              Radius.circular(13),
-                                            ),
+                                                Radius.circular(13)),
                                           ),
                                           child: Image.network(
                                             image,

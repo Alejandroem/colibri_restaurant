@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 class RestaurantProfile extends ConsumerStatefulWidget {
   final Restaurant restaurantProfile;
@@ -35,7 +36,6 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
   void initState() {
     super.initState();
 
-    // Prepopulate fields with current restaurant profile data
     _nameController.text = widget.restaurantProfile.name;
     _phoneNumberController.text = widget.restaurantProfile.phoneNumber ?? '';
     selectedCategories = widget.restaurantProfile.typeOfFood.toSet();
@@ -47,8 +47,9 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
         widget.restaurantProfile.location.latitude,
         widget.restaurantProfile.location.longitude,
       ),
-      infoWindow: const InfoWindow(
-        title: 'Selected Location',
+      infoWindow: InfoWindow(
+        title: FlutterI18n.translate(
+            context, 'restaurant_profile.selected_location'),
       ),
     ));
   }
@@ -57,7 +58,6 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
     mapController = controller;
   }
 
-  // Method to pick a cover photo
   Future<void> _pickCoverPhoto() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -87,8 +87,9 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
         selectedPrice == null ||
         _markers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all fields'),
+        SnackBar(
+          content: Text(FlutterI18n.translate(
+              context, 'restaurant_profile.fill_all_fields')),
         ),
       );
       return;
@@ -101,7 +102,6 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
     final storageService = ref.read(storageServiceProvider);
     final restaurantService = ref.read(restaurantServiceProvider);
 
-    // Upload cover photo if a new one is selected
     String coverImageUrl = widget.restaurantProfile.coverImage;
     if (_coverPhotoBytes != null && _coverPhotoFileName != null) {
       coverImageUrl = await storageService.uploadFile(
@@ -117,7 +117,6 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
       typeOfFood: selectedCategories.toList(),
       averagePrice: selectedPrice!,
       coverImage: coverImageUrl,
-      //phoneNumber: _phoneNumberController.text,
       location: LocationPoint(
         latitude: _markers.first.position.latitude,
         longitude: _markers.first.position.longitude,
@@ -131,12 +130,12 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
       saving = false;
     });
 
-    //invalidate restaurantProfileProvider
     ref.invalidate(restaurantProfileProvider);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully'),
+        SnackBar(
+          content: Text(FlutterI18n.translate(
+              context, 'restaurant_profile.profile_updated')),
         ),
       );
     }
@@ -146,7 +145,8 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Restaurant Profile'),
+        title: Text(
+            FlutterI18n.translate(context, 'restaurant_profile.edit_profile')),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -156,22 +156,18 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
             children: <Widget>[
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Restaurant Name',
+                decoration: InputDecoration(
+                  labelText: FlutterI18n.translate(
+                      context, 'restaurant_profile.restaurant_name'),
                   border: OutlineInputBorder(),
                 ),
               ),
-              /* const SizedBox(height: 16),
-              TextFormField(
-                controller: _phoneNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                ),
-              ), */
               const SizedBox(height: 16),
-              const Text('Type of Food',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                FlutterI18n.translate(
+                    context, 'restaurant_profile.type_of_food'),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 4.0,
@@ -191,14 +187,18 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
                       backgroundColor: isSelected
                           ? Colors.blue.withOpacity(0.2)
                           : Colors.grey.withOpacity(0.2),
-                      label: Text(category),
+                      label: Text(FlutterI18n.translate(
+                          context, 'categories.$category')),
                     ),
                   );
                 }).toList(),
               ),
               const SizedBox(height: 16),
-              const Text('Average Price',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                FlutterI18n.translate(
+                    context, 'restaurant_profile.average_price'),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 4.0,
@@ -220,10 +220,12 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
                 }).toList(),
               ),
               const SizedBox(height: 16),
-              const Text('Cover Photo',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                FlutterI18n.translate(
+                    context, 'restaurant_profile.cover_photo'),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
-              // Show cover photo from memory if new one is selected, otherwise from the network
               if (_coverPhotoBytes != null)
                 Image.memory(
                   _coverPhotoBytes!,
@@ -239,14 +241,24 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
                   fit: BoxFit.cover,
                 )
               else
-                const SizedBox(height: 150, child: Text('No Cover Photo')),
+                SizedBox(
+                  height: 150,
+                  child: Center(
+                    child: Text(FlutterI18n.translate(
+                        context, 'restaurant_profile.no_cover_photo')),
+                  ),
+                ),
               ElevatedButton(
                 onPressed: _pickCoverPhoto,
-                child: const Text('Select Cover Photo'),
+                child: Text(FlutterI18n.translate(
+                    context, 'restaurant_profile.select_cover_photo')),
               ),
               const SizedBox(height: 16),
-              const Text('Select Location',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                FlutterI18n.translate(
+                    context, 'restaurant_profile.select_location'),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
               SizedBox(
                 height: 200,
@@ -271,10 +283,11 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
               ),
               const SizedBox(height: 16),
               saving
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _saveProfile,
-                      child: const Text('Save Changes'),
+                      child: Text(FlutterI18n.translate(
+                          context, 'restaurant_profile.save_changes')),
                     ),
             ],
           ),

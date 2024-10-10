@@ -8,10 +8,19 @@
             "name": "colibri restaurant",
             "request": "launch",
             "type": "dart",
+            "program": "lib/main.dart",
             "args": [
                 "-d",
                 "SM A546E"
-
+            ]
+        },
+        {
+            "name": "colibri restaurant web",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "chrome"
             ]
         },
         {

@@ -1,11 +1,11 @@
 name: colibri
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+3
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
+  sdk: ">=3.4.3 <4.0.0"
 
 dependencies:
   flutter:
@@ -21,9 +21,6 @@ dependencies:
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
   font_awesome_flutter: ^10.7.0
-  flutter_localizations:
-    sdk: flutter
-  intl: any
   flutter_native_splash: ^2.4.1
   flutter_launcher_icons: ^0.13.1
   firebase_auth: ^5.1.3
@@ -39,9 +36,7 @@ dependencies:
   file_picker: ^8.1.2
   image_picker: ^1.1.2
   firebase_app_check: ^0.3.1+2
-
-  
-
+  flutter_i18n: ^0.36.0
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +56,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/i18n/
 
 flutter_launcher_icons:
   android: true
@@ -73,4 +69,3 @@ flutter_native_splash:
   image: "assets/images/logo.png"
   android: true
   ios: true
-

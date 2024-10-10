@@ -14,9 +14,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 class OnboardingRestaurant extends ConsumerStatefulWidget {
-  const OnboardingRestaurant({Key? key}) : super(key: key);
+  const OnboardingRestaurant({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -30,25 +31,17 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
   bool saving = false;
   PhoneNumber number = PhoneNumber(isoCode: 'GT');
 
-  // Local state for multi-selection of food categories
   Set<String> selectedCategories = {};
-
-  // Local state for single-select average price
   double? selectedPrice;
-
   final Set<Marker> _markers = {};
-
-  // Local state for the cover photo bytes and file name
   Uint8List? _coverPhotoBytes;
   String? _coverPhotoFileName;
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
 
-    // Get current location and update the camera position
     ref.read(locationServiceProvider).getCurrentLocation().then((latLng) {
       mapController.animateCamera(
         CameraUpdate.newLatLng(
@@ -61,7 +54,6 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
     });
   }
 
-  // Method to pick a cover photo
   Future<void> _pickCoverPhoto() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -117,12 +109,9 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const Text(
-                  'Welcome to Colibri!',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Text(
+                  FlutterI18n.translate(context, "onboarding.welcome"),
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 Image.asset(
@@ -130,7 +119,7 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                   height: 84,
                   width: 84,
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Expanded(
                   child: PageView(
                     controller: pageController,
@@ -141,21 +130,18 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                       });
                     },
                     children: [
-                      // First Page
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const SizedBox(height: 20),
-                          const Text(
-                            "Tell us about your restaurant",
+                          SizedBox(height: 20),
+                          Text(
+                            FlutterI18n.translate(
+                                context, "onboarding.tell_us_about_restaurant"),
                             style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                fontSize: 20, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 20),
-                          // Restaurant Name Input
+                          SizedBox(height: 20),
                           TextFormField(
                             controller: _nameController,
                             decoration: InputDecoration(
@@ -165,14 +151,23 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                   color: Theme.of(context).hintColor,
                                 ),
                               ),
-                              hintText: 'Restaurant Name',
+                              hintText: FlutterI18n.translate(
+                                  context, "onboarding.restaurant_name"),
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          // Phone Number Input
+                          SizedBox(height: 20),
                           InternationalPhoneNumberInput(
                             initialValue: number,
-                            onInputChanged: (PhoneNumber number) {},
+                            onInputChanged: (PhoneNumber number) {
+                              print(number.phoneNumber);
+                            },
+                            validator: (String? value) {
+                              if (value != null && value.isNotEmpty) {
+                                return null;
+                              }
+                              return FlutterI18n.translate(
+                                  context, "onboarding.invalid_phone_number");
+                            },
                             onInputValidated: (bool value) {},
                             selectorConfig: const SelectorConfig(
                               selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
@@ -183,23 +178,27 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                             textFieldController: _phoneNumberController,
                             formatInput: true,
                             keyboardType: const TextInputType.numberWithOptions(
-                                signed: true, decimal: true),
+                              signed: true,
+                              decimal: true,
+                            ),
                             inputDecoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              hintText: 'Phone Number',
+                              hintText: FlutterI18n.translate(
+                                context,
+                                "onboarding.phone_number",
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Select your location',
+                          SizedBox(height: 20),
+                          Text(
+                            FlutterI18n.translate(
+                                context, "onboarding.select_location"),
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
                           Expanded(
                             child: Container(
                               clipBehavior: Clip.hardEdge,
@@ -215,9 +214,11 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                   _markers.add(Marker(
                                     markerId: MarkerId(latLng.toString()),
                                     position: latLng,
-                                    infoWindow: const InfoWindow(
-                                      title: 'Selected Location',
-                                      snippet: 'This is the selected location',
+                                    infoWindow: InfoWindow(
+                                      title: FlutterI18n.translate(context,
+                                          "onboarding.selected_location_title"),
+                                      snippet: FlutterI18n.translate(context,
+                                          "onboarding.selected_location_snippet"),
                                     ),
                                     icon: BitmapDescriptor.defaultMarker,
                                   ));
@@ -232,168 +233,144 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20),
                         ],
                       ),
-                      // Second Page
+                      SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(height: 20),
+                            Text(
+                              FlutterI18n.translate(
+                                  context, "onboarding.food_type"),
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 10),
+                            Wrap(
+                              spacing: 4.0,
+                              children: restaurantCategories
+                                  .where((category) => category != "All")
+                                  .map((category) {
+                                final isSelected =
+                                    selectedCategories.contains(category);
+                                return InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      if (isSelected) {
+                                        selectedCategories.remove(category);
+                                      } else {
+                                        selectedCategories.add(category);
+                                      }
+                                    });
+                                  },
+                                  child: Chip(
+                                    elevation: 0.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    backgroundColor: isSelected
+                                        ? Theme.of(context)
+                                            .primaryColor
+                                            .withOpacity(0.2)
+                                        : Theme.of(context)
+                                            .chipTheme
+                                            .backgroundColor,
+                                    label: Text(
+                                      category,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12.0,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              FlutterI18n.translate(
+                                  context, "onboarding.average_price"),
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 10),
+                            Wrap(
+                              spacing: 2.0,
+                              children: [
+                                30.00,
+                                50.00,
+                                75.00,
+                                100.00,
+                              ].map((price) {
+                                final isSelected = selectedPrice == price;
+                                return InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      selectedPrice = price;
+                                    });
+                                  },
+                                  child: Chip(
+                                    elevation: 0.0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    backgroundColor: isSelected
+                                        ? Theme.of(context)
+                                            .primaryColor
+                                            .withOpacity(0.2)
+                                        : Theme.of(context)
+                                            .chipTheme
+                                            .backgroundColor,
+                                    label: Text(
+                                      "Q${price.toStringAsFixed(2)}",
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12.0,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const SizedBox(height: 20),
-                          const Text(
-                            "Type of food",
+                          SizedBox(height: 20),
+                          Text(
+                            FlutterI18n.translate(
+                                context, "onboarding.pick_cover_photo"),
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                fontSize: 16, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 4.0,
-                            children: restaurantCategories
-                                .where((category) => category != "All")
-                                .map((category) {
-                              final isSelected =
-                                  selectedCategories.contains(category);
-                              return InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      selectedCategories.remove(category);
-                                    } else {
-                                      selectedCategories.add(category);
-                                    }
-                                  });
-                                },
-                                child: Chip(
-                                  elevation: 0.0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  backgroundColor: isSelected
-                                      ? Theme.of(context)
-                                          .primaryColor
-                                          .withOpacity(0.2)
-                                      : Theme.of(context)
-                                          .chipTheme
-                                          .backgroundColor,
-                                  label: Text(
-                                    category,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.0,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            "Average Price",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 2.0,
-                            children: [
-                              30.00,
-                              50.00,
-                              75.00,
-                              100.00,
-                            ].map((price) {
-                              final isSelected = selectedPrice == price;
-                              return InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    selectedPrice = price;
-                                  });
-                                },
-                                child: Chip(
-                                  elevation: 0.0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  backgroundColor: isSelected
-                                      ? Theme.of(context)
-                                          .primaryColor
-                                          .withOpacity(0.2)
-                                      : Theme.of(context)
-                                          .chipTheme
-                                          .backgroundColor,
-                                  label: Text(
-                                    "Q${price.toStringAsFixed(2)}",
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.0,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                      // Third Page
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: 20),
-                          const Text(
-                            "Pick a cover photo",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 10),
-                          if (_coverPhotoFileName != null &&
-                              _coverPhotoBytes != null)
-                            Container(
-                              clipBehavior: Clip.hardEdge,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(13),
-                                ),
-                              ),
-                              child: Image.memory(
-                                _coverPhotoBytes!,
-                                height: 150,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                          SizedBox(height: 10),
                           if (_coverPhotoFileName == null &&
                               _coverPhotoBytes == null)
-                            const SizedBox(
-                              height: 150,
-                              child: Center(
-                                child: Text(
-                                  "No cover photo selected",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
+                            Text(
+                              FlutterI18n.translate(
+                                  context, "onboarding.no_cover_photo"),
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 16),
+                              textAlign: TextAlign.center,
                             ),
-                          const SizedBox(height: 10),
                           ElevatedButton(
                             onPressed: _pickCoverPhoto,
-                            child: const Text("Select Cover Photo"),
+                            child: Text(FlutterI18n.translate(
+                                context, "onboarding.select_cover_photo")),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Row(
                   children: [
                     if (_currentPageIndex > 0)
@@ -401,27 +378,30 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                         child: ElevatedButton(
                           onPressed: () {
                             pageController.previousPage(
-                              duration: const Duration(milliseconds: 300),
+                              duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
                             );
                           },
-                          child: const Text('Back'),
+                          child: Text(FlutterI18n.translate(
+                              context, "onboarding.back")),
                         ),
                       ),
-                    if (_currentPageIndex > 0) const SizedBox(width: 10),
+                    if (_currentPageIndex > 0) SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: saving
+                        onPressed: saving ||
+                                (_currentPageIndex == 2 &&
+                                    !_canSaveRestaurant())
                             ? null
                             : () async {
                                 if (_currentPageIndex == 2 &&
                                     !_canSaveRestaurant()) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Please fill in all the fields',
-                                        ),
+                                      SnackBar(
+                                        content: Text(FlutterI18n.translate(
+                                            context,
+                                            "onboarding.fill_all_fields")),
                                       ),
                                     );
                                   }
@@ -432,15 +412,13 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                   setState(() {
                                     saving = true;
                                   });
-                                  // Save action on the last page
-                                  // Add save logic here
+
                                   final storageService =
                                       ref.read(storageServiceProvider);
                                   final restaurantService =
                                       ref.read(restaurantServiceProvider);
-                                  final authenticationService = ref.read(
-                                    authenticationServiceProvider,
-                                  );
+                                  final authenticationService =
+                                      ref.read(authenticationServiceProvider);
                                   final profileService =
                                       ref.read(profileServiceProvider);
 
@@ -448,9 +426,7 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                       await authenticationService
                                           .getAuthenticatedUserId();
                                   final profile = await profileService.readBy(
-                                    'userId',
-                                    authenticatedId!,
-                                  );
+                                      'userId', authenticatedId!);
 
                                   Restaurant restaurant = Restaurant(
                                     id: null,
@@ -471,9 +447,8 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                     isOpen: false,
                                   );
 
-                                  restaurant = await restaurantService.create(
-                                    restaurant,
-                                  );
+                                  restaurant = await restaurantService
+                                      .create(restaurant);
 
                                   final coverImage = _coverPhotoBytes != null
                                       ? await storageService.uploadFile(
@@ -485,19 +460,16 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                       : '';
 
                                   await restaurantService.update(
-                                    restaurant.copyWith(
-                                      coverImage: coverImage,
-                                    ),
+                                    restaurant.copyWith(coverImage: coverImage),
                                     restaurant.id!,
                                   );
 
-                                  final refresh = ref.refresh(
-                                    restaurantProfileProvider,
-                                  );
+                                  final refresh =
+                                      ref.refresh(restaurantProfileProvider);
                                   log('Refreshed restaurant profile: $refresh');
                                 } else {
                                   pageController.nextPage(
-                                    duration: const Duration(milliseconds: 300),
+                                    duration: Duration(milliseconds: 300),
                                     curve: Curves.easeInOut,
                                   );
                                 }
@@ -513,7 +485,12 @@ class _OnboardingRestaurantState extends ConsumerState<OnboardingRestaurant> {
                                 ),
                               )
                             : Text(
-                                _currentPageIndex == 2 ? 'Save' : 'Continue',
+                                FlutterI18n.translate(
+                                  context,
+                                  _currentPageIndex == 2
+                                      ? "onboarding.save"
+                                      : "onboarding.continue",
+                                ),
                               ),
                       ),
                     ),

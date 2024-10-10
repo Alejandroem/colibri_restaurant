@@ -7,6 +7,7 @@ import 'package:colibri_shared/domain/models/restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 class ManageDishPage extends ConsumerStatefulWidget {
   final Restaurant restaurant;
@@ -25,37 +26,26 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
   bool _isSaving = false;
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers for input fields
   TextEditingController nameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController priceController = TextEditingController();
 
-  // Image picker instance
   final ImagePicker _picker = ImagePicker();
-
-  // List to store selected image files (locally picked images)
   final List<File> _newImages = [];
-
-  // List to store existing image URLs (for editing)
   List<String> _existingImageUrls = [];
-
-  // List to track images marked for deletion
   final List<String> _imagesToDelete = [];
 
   @override
   void initState() {
     super.initState();
     if (widget.dish != null) {
-      // Pre-populate fields with existing dish data if it's an update
       nameController.text = widget.dish!.name;
       descriptionController.text = widget.dish!.description;
       priceController.text = widget.dish!.price.toString();
-      // Populate existing image URLs for editing
       _existingImageUrls = List.from(widget.dish!.images);
     }
   }
 
-  // Method to pick image from gallery
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -65,7 +55,6 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
     }
   }
 
-  // Method to take picture using the camera
   Future<void> _takePicture() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
@@ -75,22 +64,19 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
     }
   }
 
-  // Mark existing image URL for deletion
   void _markImageForDeletion(String imageUrl) {
     setState(() {
-      _existingImageUrls.remove(imageUrl); // Temporarily remove from UI
-      _imagesToDelete.add(imageUrl); // Add to delete list
+      _existingImageUrls.remove(imageUrl);
+      _imagesToDelete.add(imageUrl);
     });
   }
 
-  // Remove new image before it's uploaded
   void _deleteNewImage(int index) {
     setState(() {
       _newImages.removeAt(index);
     });
   }
 
-  // Method to save form
   Future<void> _saveForm() async {
     setState(() {
       _isSaving = true;
@@ -100,12 +86,10 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
       final dishService = ref.read(dishServiceProvider);
       final storageService = ref.read(storageServiceProvider);
 
-      // Get values from the form
       String name = nameController.text;
       String description = descriptionController.text;
       double? price = double.tryParse(priceController.text);
       if (price == null) {
-        // Handle invalid price input
         setState(() {
           _isSaving = false;
         });
@@ -113,8 +97,6 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
       }
 
       List<String> finalImageUrls = List.from(_existingImageUrls);
-
-      // If the dish is new (no ID yet), create the dish first to get the ID
       String dishId;
       if (widget.dish == null) {
         final newDish = Dish(
@@ -123,47 +105,40 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
           name: name,
           description: description,
           price: price,
-          images: [], // Images will be added after upload
+          images: [],
           baseIngredients: null,
           extraIngredients: null,
           removableIngredients: null,
           isAvailable: null,
         );
 
-        // Create the dish and get the newly generated ID
         final createdDish = await dishService.create(newDish);
-        dishId = createdDish
-            .id; // Assuming create() returns the dish with the generated ID
+        dishId = createdDish.id;
       } else {
-        // For updating an existing dish, use the existing ID
         dishId = widget.dish!.id;
       }
 
-      // Delete marked images
       for (var imageUrl in _imagesToDelete) {
-        await storageService.deleteFileFromUrl(imageUrl); // Delete from storage
+        await storageService.deleteFileFromUrl(imageUrl);
       }
 
-      // Upload new images
       for (var image in _newImages) {
         final uploadedImageUrl = await storageService.uploadFile(
-          'dishes/$dishId', // Now we have the dish ID
+          'dishes/$dishId',
           image.path.split('/').last,
           image.path.split('.').last,
           await image.readAsBytes(),
         );
-        finalImageUrls
-            .add(uploadedImageUrl); // Add the new image URL to the final list
+        finalImageUrls.add(uploadedImageUrl);
       }
 
-      // Now update the dish with the final image URLs
       final updatedDish = Dish(
         id: dishId,
         restaurantId: widget.restaurant.id!,
         name: name,
         description: description,
         price: price,
-        images: finalImageUrls, // Updated image list
+        images: finalImageUrls,
         baseIngredients: widget.dish?.baseIngredients,
         extraIngredients: widget.dish?.extraIngredients,
         removableIngredients: widget.dish?.removableIngredients,
@@ -173,8 +148,7 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
       await dishService.update(updatedDish, dishId);
 
       if (mounted) {
-        Navigator.of(context)
-            .pop(true); // Return true to trigger refresh on pop
+        Navigator.of(context).pop(true);
       }
     }
 
@@ -187,46 +161,40 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
     final dishService = ref.read(dishServiceProvider);
     final storageService = ref.read(storageServiceProvider);
 
-    // Show confirmation dialog before deletion
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Dish'),
-        content: const Text(
-            'Are you sure you want to delete this dish? This action cannot be undone.'),
+        title: Text(FlutterI18n.translate(context, 'manage_dish.delete_dish')),
+        content: Text(
+            FlutterI18n.translate(context, 'manage_dish.delete_dish_confirm')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false), // Cancel
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(FlutterI18n.translate(context, 'manage_dish.cancel')),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true), // Confirm delete
-            child: const Text('Delete'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(FlutterI18n.translate(context, 'manage_dish.delete')),
           ),
         ],
       ),
     );
 
     if (shouldDelete != true) {
-      return; // User canceled the deletion
+      return;
     }
 
-    // Proceed with deletion
     try {
-      // Delete all images from Firebase Storage
       for (String imageUrl in widget.dish!.images) {
         await storageService.deleteFileFromUrl(imageUrl);
       }
-
-      // Delete the dish from the database
       await dishService.delete(widget.dish!.id);
 
       if (mounted) {
-        Navigator.of(context).pop(true); // Return true to refresh the list
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       log('Error deleting dish: $e');
-      // Handle any errors here, such as showing a snackbar or alert
     }
   }
 
@@ -234,13 +202,12 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Dish'),
+        title: Text(FlutterI18n.translate(context, 'manage_dish.manage_dish')),
         actions: widget.dish != null
             ? [
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed:
-                      _deleteDish, // Call the delete function when pressed
+                  onPressed: _deleteDish,
                 ),
               ]
             : null,
@@ -252,67 +219,68 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                // Name Field
                 TextFormField(
                   controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Dish Name',
+                  decoration: InputDecoration(
+                    labelText:
+                        FlutterI18n.translate(context, 'manage_dish.dish_name'),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter the dish name';
+                      return FlutterI18n.translate(
+                          context, 'manage_dish.enter_dish_name');
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16.0),
-
-                // Description Field
                 TextFormField(
                   controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
+                  decoration: InputDecoration(
+                    labelText: FlutterI18n.translate(
+                        context, 'manage_dish.description'),
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a description';
+                      return FlutterI18n.translate(
+                          context, 'manage_dish.enter_description');
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16.0),
-
-                // Price Field
                 TextFormField(
                   controller: priceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Price',
+                  decoration: InputDecoration(
+                    labelText:
+                        FlutterI18n.translate(context, 'manage_dish.price'),
                     border: OutlineInputBorder(),
-                    prefixText: 'Q', // This will add the "Q" prefix
+                    prefixText: 'Q',
                   ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a price';
+                      return FlutterI18n.translate(
+                          context, 'manage_dish.enter_price');
                     }
                     if (double.tryParse(value) == null) {
-                      return 'Please enter a valid price';
+                      return FlutterI18n.translate(
+                          context, 'manage_dish.valid_price');
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16.0),
-
-                // Existing Image Section (for editing)
                 if (_existingImageUrls.isNotEmpty)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Existing Dish Images',
+                      Text(
+                        FlutterI18n.translate(
+                            context, 'manage_dish.existing_images'),
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
@@ -349,15 +317,11 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
                       const SizedBox(height: 16.0),
                     ],
                   ),
-
-                // New Image Upload Section
-                const Text(
-                  'New Dish Images',
+                Text(
+                  FlutterI18n.translate(context, 'manage_dish.new_images'),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8.0),
-
-                // Display selected new images
                 Wrap(
                   spacing: 8.0,
                   runSpacing: 8.0,
@@ -387,29 +351,28 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
                   }).toList(),
                 ),
                 const SizedBox(height: 16.0),
-
-                // Buttons to pick image from gallery or take picture
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
                       onPressed: _pickImage,
-                      child: const Text('Upload Image'),
+                      child: Text(FlutterI18n.translate(
+                          context, 'manage_dish.upload_image')),
                     ),
                     ElevatedButton(
                       onPressed: _takePicture,
-                      child: const Text('Take Picture'),
+                      child: Text(FlutterI18n.translate(
+                          context, 'manage_dish.take_picture')),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16.0),
-
-                // Save Button
                 ElevatedButton(
                   onPressed: _isSaving ? null : _saveForm,
                   child: _isSaving
-                      ? const CircularProgressIndicator()
-                      : const Text('Save Dish'),
+                      ? CircularProgressIndicator()
+                      : Text(FlutterI18n.translate(
+                          context, 'manage_dish.save_dish')),
                 ),
               ],
             ),

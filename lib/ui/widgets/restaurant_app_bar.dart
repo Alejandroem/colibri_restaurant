@@ -2,6 +2,7 @@ import 'package:colibri_shared/application/providers/restaurant_providers.dart';
 import 'package:colibri_shared/domain/models/restaurant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 class RestaurantAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey;
@@ -22,9 +23,11 @@ class RestaurantAppBar extends ConsumerWidget implements PreferredSizeWidget {
         children: [
           Text(restaurantProfile.name),
           const Spacer(),
-          restaurantProfile.isOpen == true
-              ? const Text("Open")
-              : const Text("Closed"),
+          Text(
+            restaurantProfile.isOpen == true
+                ? FlutterI18n.translate(context, "app_bar.open")
+                : FlutterI18n.translate(context, "app_bar.closed"),
+          ),
           const SizedBox(width: 8),
           Switch(
             value: restaurantProfile.isOpen ?? false,
@@ -36,7 +39,7 @@ class RestaurantAppBar extends ConsumerWidget implements PreferredSizeWidget {
               );
               ref.invalidate(
                 restaurantProfileProvider,
-              ); // Invalidate to trigger a rebuild
+              );
             },
           ),
         ],

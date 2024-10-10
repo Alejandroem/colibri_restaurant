@@ -1,5 +1,6 @@
 import 'package:colibri_shared/application/providers/authentication_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthenticationPage extends ConsumerStatefulWidget {
@@ -44,8 +45,8 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 64),
-                const Text(
-                  "Welcome",
+                Text(
+                  FlutterI18n.translate(context, "welcome"),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -53,26 +54,30 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                   textAlign: TextAlign.center,
                 ),
                 ref.watch(isLogin)
-                    ? const Text(
-                        "Login to your account",
+                    ? Text(
+                        FlutterI18n.translate(context, "loginText"),
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
                         ),
                         textAlign: TextAlign.center,
                       )
-                    : const Text(
-                        "Create an account",
+                    : Text(
+                        FlutterI18n.translate(context, "registerText"),
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                Image.asset(
-                  'assets/images/logo.png',
-                  height: 84,
-                  width: 84,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: AssetImage('assets/images/logo.png'),
+                      radius: 30,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
@@ -89,9 +94,10 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                         ),
                         child: TextFormField(
                           controller: emailController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'Enter your email',
+                            hintText:
+                                FlutterI18n.translate(context, "hintEmail"),
                           ),
                           keyboardType: TextInputType.emailAddress,
                         ),
@@ -110,7 +116,8 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                           controller: passwordController,
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText: 'Enter your password',
+                            hintText:
+                                FlutterI18n.translate(context, "hintPassword"),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword
@@ -142,7 +149,8 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                           final password = passwordController.text;
                           if (email.isEmpty || password.isEmpty) {
                             ref.read(authErrorMessage.notifier).state =
-                                'Email and password are required';
+                                FlutterI18n.translate(
+                                    context, "errorEmptyCredentials");
                             return;
                           }
                           try {
@@ -169,8 +177,8 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                           }
                         },
                         child: ref.watch(isLogin)
-                            ? const Text('Login')
-                            : const Text('Register'),
+                            ? Text(FlutterI18n.translate(context, "login"))
+                            : Text(FlutterI18n.translate(context, "register")),
                       ),
                       const SizedBox(height: 8),
                       TextButton(
@@ -179,15 +187,15 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                           isLoginState.state = !isLoginState.state;
                         },
                         child: ref.watch(isLogin)
-                            ? const Text(
-                                'Don\'t have an account? Sign up',
-                                style: TextStyle(
+                            ? Text(
+                                FlutterI18n.translate(context, "toggleSignup"),
+                                style: const TextStyle(
                                   color: Colors.blue,
                                 ),
                               )
-                            : const Text(
-                                'Already have an account? Log in',
-                                style: TextStyle(
+                            : Text(
+                                FlutterI18n.translate(context, "toggleLogin"),
+                                style: const TextStyle(
                                   color: Colors.blue,
                                 ),
                               ),
@@ -197,9 +205,9 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                           onPressed: () {
                             // Navigate to password reset page or implement password reset logic
                           },
-                          child: const Text(
-                            'Forgot Password?',
-                            style: TextStyle(
+                          child: Text(
+                            FlutterI18n.translate(context, "forgotPassword"),
+                            style: const TextStyle(
                               color: Colors.blue,
                             ),
                           ),
@@ -208,9 +216,9 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                const Text(
-                  "1.0.0+3",
-                  style: TextStyle(
+                Text(
+                  FlutterI18n.translate(context, "version"),
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
                   ),

@@ -2,6 +2,7 @@ import 'package:colibri_shared/application/providers/order_providers.dart';
 import 'package:colibri_shared/domain/models/orders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 class OrderList extends ConsumerStatefulWidget {
   final String restaurantId;
@@ -36,29 +37,32 @@ class _OrderListState extends ConsumerState<OrderList> {
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(
-                child: Text("Error: ${snapshot.error}"),
+                child: Text(
+                  "${FlutterI18n.translate(context, 'order_list.error')}: ${snapshot.error}",
+                ),
               );
             }
 
             if (snapshot.data == null || snapshot.data!.isEmpty) {
-              return const Center(
-                child: Text("No orders"),
+              return Center(
+                child: Text(FlutterI18n.translate(context, 'order_list.no_orders')),
               );
             }
-            //order by date time based on placed
+
             snapshot.data!.sort((a, b) {
               return b.statusHistory[OrderStatus.placed]!
                   .compareTo(a.statusHistory[OrderStatus.placed]!);
             });
+
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      "Orders",
+                      FlutterI18n.translate(context, 'order_list.orders'),
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -76,17 +80,17 @@ class _OrderListState extends ConsumerState<OrderList> {
                                 ListTile(
                                   title: Text(order.restaurantName),
                                   subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
                                     children: [
                                       Text(order.status.toString()),
-                                      Text("Total Price : ${order.dishes.fold(
-                                        0.0,
-                                        (previousValue, element) =>
-                                            previousValue +
-                                            element.price *
-                                                (element.quantity ?? 0),
-                                      )}")
+                                      Text(
+                                        "${FlutterI18n.translate(context, 'order_list.total_price')} : ${order.dishes.fold(
+                                          0.0,
+                                          (previousValue, element) =>
+                                              previousValue +
+                                              element.price * (element.quantity ?? 0),
+                                        )}",
+                                      ),
                                     ],
                                   ),
                                   trailing: Column(
@@ -100,8 +104,7 @@ class _OrderListState extends ConsumerState<OrderList> {
                                   ),
                                 ),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
                                     if (order.status == OrderStatus.placed)
                                       OutlinedButton(
@@ -109,11 +112,9 @@ class _OrderListState extends ConsumerState<OrderList> {
                                           backgroundColor: Colors.green,
                                         ),
                                         onPressed: () {
-                                          var statusHistory =
-                                              Map<OrderStatus, DateTime>.from(
-                                                  order.statusHistory);
-                                          statusHistory[OrderStatus.preparing] =
-                                              DateTime.now();
+                                          var statusHistory = Map<OrderStatus, DateTime>.from(
+                                              order.statusHistory);
+                                          statusHistory[OrderStatus.preparing] = DateTime.now();
                                           ref.read(orderCrudSevice).update(
                                                 order.copyWith(
                                                   status: OrderStatus.preparing,
@@ -122,8 +123,8 @@ class _OrderListState extends ConsumerState<OrderList> {
                                                 order.id,
                                               );
                                         },
-                                        child: const Text(
-                                          "Accept Order",
+                                        child: Text(
+                                          FlutterI18n.translate(context, 'order_list.accept_order'),
                                           style: TextStyle(
                                             color: Colors.white,
                                           ),
@@ -135,32 +136,29 @@ class _OrderListState extends ConsumerState<OrderList> {
                                           backgroundColor: Colors.green,
                                         ),
                                         onPressed: () {
-                                          var statusHistory =
-                                              Map<OrderStatus, DateTime>.from(
-                                                  order.statusHistory);
-                                          statusHistory[OrderStatus
-                                              .pendingdriver] = DateTime.now();
+                                          var statusHistory = Map<OrderStatus, DateTime>.from(
+                                              order.statusHistory);
+                                          statusHistory[OrderStatus.pendingdriver] = DateTime.now();
                                           ref.read(orderCrudSevice).update(
                                                 order.copyWith(
-                                                  status:
-                                                      OrderStatus.pendingdriver,
+                                                  status: OrderStatus.pendingdriver,
                                                   statusHistory: statusHistory,
                                                 ),
                                                 order.id,
                                               );
                                         },
-                                        child: const Text(
-                                          "Ready for pickup",
+                                        child: Text(
+                                          FlutterI18n.translate(context, 'order_list.ready_for_pickup'),
                                           style: TextStyle(
                                             color: Colors.white,
                                           ),
                                         ),
                                       ),
                                     Text(
-                                      "Order Placed ${getTimeAgo(order.statusHistory[OrderStatus.placed])} ago",
+                                      "${FlutterI18n.translate(context, 'order_list.order_placed')} ${getTimeAgo(order.statusHistory[OrderStatus.placed])} ${FlutterI18n.translate(context, 'order_list.ago')}",
                                     ),
                                   ],
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -178,18 +176,18 @@ class _OrderListState extends ConsumerState<OrderList> {
 
   String getTimeAgo(DateTime? time) {
     if (time == null) {
-      return "Unknown";
+      return FlutterI18n.translate(context, 'order_list.unknown');
     }
     final diff = DateTime.now().difference(time);
     if (diff.inDays > 0) {
-      return "${diff.inDays} days";
+      return "${diff.inDays} ${FlutterI18n.translate(context, 'order_list.days')}";
     }
     if (diff.inHours > 0) {
-      return "${diff.inHours} hours";
+      return "${diff.inHours} ${FlutterI18n.translate(context, 'order_list.hours')}";
     }
     if (diff.inMinutes > 0) {
-      return "${diff.inMinutes} minutes";
+      return "${diff.inMinutes} ${FlutterI18n.translate(context, 'order_list.minutes')}";
     }
-    return "Just now";
+    return FlutterI18n.translate(context, 'order_list.just_now');
   }
 }
