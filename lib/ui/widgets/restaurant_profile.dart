@@ -159,14 +159,14 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
                 decoration: InputDecoration(
                   labelText: FlutterI18n.translate(
                       context, 'restaurant_profile.restaurant_name'),
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 FlutterI18n.translate(
                     context, 'restaurant_profile.type_of_food'),
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Wrap(
@@ -197,7 +197,7 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
               Text(
                 FlutterI18n.translate(
                     context, 'restaurant_profile.average_price'),
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Wrap(
@@ -223,7 +223,7 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
               Text(
                 FlutterI18n.translate(
                     context, 'restaurant_profile.cover_photo'),
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               if (_coverPhotoBytes != null)
@@ -257,7 +257,7 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
               Text(
                 FlutterI18n.translate(
                     context, 'restaurant_profile.select_location'),
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               SizedBox(
@@ -283,7 +283,7 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
               ),
               const SizedBox(height: 16),
               saving
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _saveProfile,
                       child: Text(FlutterI18n.translate(

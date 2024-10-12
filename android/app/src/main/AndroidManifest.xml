@@ -2,7 +2,7 @@
     <application
         android:label="ColibriRestaurant"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCi0mrgq4VgYSG3mvXC0nXZDw-GmkLK7jw" />

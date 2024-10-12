@@ -11,7 +11,8 @@
             "program": "lib/main.dart",
             "args": [
                 "-d",
-                "SM A546E"
+                "SM A546E",
+                "-v"
             ]
         },
         {

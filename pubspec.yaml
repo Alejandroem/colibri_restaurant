@@ -37,6 +37,7 @@ dependencies:
   image_picker: ^1.1.2
   firebase_app_check: ^0.3.1+2
   flutter_i18n: ^0.36.0
+  firebase_messaging: ^15.1.3
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +51,25 @@ dev_dependencies:
   custom_lint: ^0.6.4
   riverpod_lint: ^2.3.10
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"
+  keep_aspect_ratio: true
+  remove_alpha: true
+
+flutter_native_splash:
+  color: "#fd167d"
+  image: "assets/images/splash.png"
+  background_image: "assets/images/background.png"
+  android: true
+  ios: true
+  android_12:
+    image: "assets/images/splash.png"
+    icon_background_color: "#fd167d"
+    image_dark: "assets/images/splash.png"
+    icon_background_color_dark: "#fd167d"
+
 flutter:
   generate: true
   uses-material-design: true
@@ -57,15 +77,3 @@ flutter:
   assets:
     - assets/images/
     - assets/i18n/
-
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/images/logo.png"
-  keep_aspect_ratio: true
-
-flutter_native_splash:
-  color: "#ffffff"
-  image: "assets/images/logo.png"
-  android: true
-  ios: true
