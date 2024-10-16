@@ -12,7 +12,10 @@ dependencies:
     sdk: flutter
 
   colibri_shared:
-    path: ../colibri_shared
+    #path: ../colibri_shared
+    git:
+      url: https://github.com/Alejandroem/colibri_shared
+      ref: master
 
   cupertino_icons: ^1.0.6
   freezed_annotation: ^2.4.4
