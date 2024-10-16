@@ -260,9 +260,11 @@ packages:
   colibri_shared:
     dependency: "direct main"
     description:
-      path: "../colibri_shared"
-      relative: true
-    source: path
+      path: "."
+      ref: master
+      resolved-ref: "75a0a2fe441bd0971b109b7c0796c0c84ca22a6f"
+      url: "https://github.com/Alejandroem/colibri_shared"
+    source: git
     version: "0.0.1"
   collection:
     dependency: transitive
