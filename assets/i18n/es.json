@@ -84,18 +84,18 @@
         "no_data": "Sin datos"
     },
     "restaurant_profile": {
-      "selected_location": "Ubicación seleccionada",
-      "fill_all_fields": "Por favor, rellena todos los campos",
-      "profile_updated": "Perfil actualizado con éxito",
-      "edit_profile": "Editar perfil del restaurante",
-      "restaurant_name": "Nombre del restaurante",
-      "type_of_food": "Tipo de comida",
-      "average_price": "Precio promedio",
-      "cover_photo": "Foto de portada",
-      "no_cover_photo": "Sin foto de portada",
-      "select_cover_photo": "Seleccionar foto de portada",
-      "select_location": "Seleccionar ubicación",
-      "save_changes": "Guardar cambios"
+        "selected_location": "Ubicación seleccionada",
+        "fill_all_fields": "Por favor, rellena todos los campos",
+        "profile_updated": "Perfil actualizado con éxito",
+        "edit_profile": "Editar perfil del restaurante",
+        "restaurant_name": "Nombre del restaurante",
+        "type_of_food": "Tipo de comida",
+        "average_price": "Precio promedio",
+        "cover_photo": "Foto de portada",
+        "no_cover_photo": "Sin foto de portada",
+        "select_cover_photo": "Seleccionar foto de portada",
+        "select_location": "Seleccionar ubicación",
+        "save_changes": "Guardar cambios"
     },
     "categories": {
         "All": "Todo",
@@ -121,6 +121,12 @@
         "Organic": "Orgánica",
         "Ayurvedic": "Ayurvédica",
         "Kosher": "Kosher",
+        "Bakery": "Panadería",
+        "Cafe": "Cafetería",
+        "Guatemalan": "Guatemalteca",
+        "Vegetarian": "Vegetariana",
+        "Vegan": "Vegana",
+        "Pizza": "Pizza",
         "Other": "Otra"
     }
 }

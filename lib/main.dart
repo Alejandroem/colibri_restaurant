@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:colibri_shared/application/providers/storage_providers.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -27,15 +28,26 @@ void main() async {
   Stripe.publishableKey =
       'pk_test_51PoCrn05ZmOEFOYpsrKFgDgpYbMyz2WWl4L3cER5j97ivPXRYk8f4UxQan9XSvt8txam1fi6GYcJDWOYlfCiZIid00PIPoA2eR';
 
+  // Retrieve saved locale (fallback to English if not found)
+  final container = ProviderContainer();
+  final localStorage = container.read(localStorageServiceProvider);
+  final savedLocaleCode = await localStorage.read('selectedLocale');
+  final initialLocale =
+      savedLocaleCode != null ? Locale(savedLocaleCode) : Locale('en');
+
   runApp(
-    const ProviderScope(
-      child: MyApp(),
+    ProviderScope(
+      child: MyApp(
+        initialLocale: initialLocale,
+      ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Locale initialLocale;
+
+  const MyApp({super.key, required this.initialLocale});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +73,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations
             .delegate, // Add this for Cupertino components
       ],
-      locale: const Locale('es', ''),
+      locale: initialLocale,
       supportedLocales: const [
         Locale('en', ''),
         Locale('es', ''),

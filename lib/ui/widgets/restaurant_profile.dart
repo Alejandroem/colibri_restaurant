@@ -40,18 +40,19 @@ class _RestaurantProfileState extends ConsumerState<RestaurantProfile> {
     _phoneNumberController.text = widget.restaurantProfile.phoneNumber ?? '';
     selectedCategories = widget.restaurantProfile.typeOfFood.toSet();
     selectedPrice = widget.restaurantProfile.averagePrice;
-
-    _markers.add(Marker(
-      markerId: MarkerId(widget.restaurantProfile.location.toString()),
-      position: LatLng(
-        widget.restaurantProfile.location.latitude,
-        widget.restaurantProfile.location.longitude,
-      ),
-      infoWindow: InfoWindow(
-        title: FlutterI18n.translate(
-            context, 'restaurant_profile.selected_location'),
-      ),
-    ));
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _markers.add(Marker(
+        markerId: MarkerId(widget.restaurantProfile.location.toString()),
+        position: LatLng(
+          widget.restaurantProfile.location.latitude,
+          widget.restaurantProfile.location.longitude,
+        ),
+        infoWindow: InfoWindow(
+          title: FlutterI18n.translate(
+              context, 'restaurant_profile.selected_location'),
+        ),
+      ));
+    });
   }
 
   void _onMapCreated(GoogleMapController controller) {

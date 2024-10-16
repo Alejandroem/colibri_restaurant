@@ -121,6 +121,12 @@
         "Organic": "Orgánica",
         "Ayurvedic": "Ayurvédica",
         "Kosher": "Kosher",
+        "Bakery": "Bakery",
+        "Cafe": "Cafe",
+        "Guatemalan": "Guatemalan",
+        "Vegetarian": "Vegetarian",
+        "Vegan": "Vegan",
+        "Pizza": "Pizza",
         "Other": "Other"
     }
 }

@@ -1,9 +1,10 @@
 import 'dart:developer';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:colibri_shared/application/providers/restaurant_providers.dart';
 import 'package:colibri_shared/application/providers/storage_providers.dart';
 import 'package:colibri_shared/domain/models/dish.dart';
 import 'package:colibri_shared/domain/models/restaurant.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,7 +32,8 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
   TextEditingController priceController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
-  final List<File> _newImages = [];
+  final List<dynamic> _newImages =
+      []; // Holds File for mobile, Uint8List for web
   List<String> _existingImageUrls = [];
   final List<String> _imagesToDelete = [];
 
@@ -49,8 +51,10 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
+      final imageBytes =
+          await pickedFile.readAsBytes(); // Use bytes for both platforms
       setState(() {
-        _newImages.add(File(pickedFile.path));
+        _newImages.add(imageBytes);
       });
     }
   }
@@ -58,8 +62,9 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
   Future<void> _takePicture() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
+      final imageBytes = await pickedFile.readAsBytes();
       setState(() {
-        _newImages.add(File(pickedFile.path));
+        _newImages.add(imageBytes);
       });
     }
   }
@@ -122,12 +127,14 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
         await storageService.deleteFileFromUrl(imageUrl);
       }
 
-      for (var image in _newImages) {
+      for (var imageBytes in _newImages) {
+        final uniqueFileName =
+            '${DateTime.now().millisecondsSinceEpoch}.jpg'; // Generate a unique filename
         final uploadedImageUrl = await storageService.uploadFile(
           'dishes/$dishId',
-          image.path.split('/').last,
-          image.path.split('.').last,
-          await image.readAsBytes(),
+          uniqueFileName,
+          'jpg', // You can specify the format as 'jpg' or 'png'
+          imageBytes,
         );
         finalImageUrls.add(uploadedImageUrl);
       }
@@ -331,8 +338,8 @@ class _ManageDishPageState extends ConsumerState<ManageDishPage> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8.0),
-                          child: Image.file(
-                            image,
+                          child: Image.memory(
+                            image as Uint8List,
                             width: 100,
                             height: 100,
                             fit: BoxFit.cover,

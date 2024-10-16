@@ -1,4 +1,5 @@
 import 'package:colibri_shared/application/providers/authentication_providers.dart';
+import 'package:colibri_shared/application/providers/storage_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -216,12 +217,48 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Text(
-                  FlutterI18n.translate(context, "version"),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      FlutterI18n.translate(context, "version"),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    // Add a switch locale button between es and en
+                    Spacer(),
+                    TextButton(
+                      onPressed: () async {
+                        final localStorage =
+                            ref.read(localStorageServiceProvider);
+                        final currentLocale =
+                            FlutterI18n.currentLocale(context);
+                        final newLocale = currentLocale?.languageCode == 'en'
+                            ? Locale('es')
+                            : Locale('en');
+                        await FlutterI18n.refresh(context, newLocale);
+                        await FlutterI18n.refresh(context, newLocale);
+
+                        // Save the selected locale to SharedPreferences
+                        localStorage.save(
+                          'selectedLocale',
+                          newLocale.languageCode,
+                        );
+
+                        setState(
+                            () {}); // Force rebuild to reflect locale change
+                      },
+                      child: Text(
+                        FlutterI18n.currentLocale(context)?.languageCode == 'en'
+                            ? 'ES'
+                            : 'EN',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
