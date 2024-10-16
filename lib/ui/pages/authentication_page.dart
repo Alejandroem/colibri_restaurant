@@ -3,6 +3,7 @@ import 'package:colibri_shared/application/providers/storage_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class AuthenticationPage extends ConsumerStatefulWidget {
   const AuthenticationPage({super.key});
@@ -219,12 +220,22 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
                 const SizedBox(height: 32),
                 Row(
                   children: [
-                    Text(
-                      FlutterI18n.translate(context, "version"),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                    FutureBuilder(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          final PackageInfo packageInfo =
+                              snapshot.data as PackageInfo;
+                          return Text(
+                            '${packageInfo.version}+${packageInfo.buildNumber}',
+                            style: TextStyle(
+                              color: Theme.of(context).disabledColor,
+                              fontSize: 12,
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
                     ),
                     // Add a switch locale button between es and en
                     Spacer(),
